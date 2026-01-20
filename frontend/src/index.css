@@ -1,0 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display&family=Inter&display=swap');
+@import "tailwindcss";
+
+@theme {
+    --color-ivory: #F7F5F2;
+    --color-charcoal: #1C1C1C;
+    --color-warmgray: #B8B5B0;
+    --color-beige: #F2EFE9;
+    --color-mutedbrown: #8C7B6D;
+    --color-gold: #D4AF37;
+
+    --font-serif: "Playfair Display", serif;
+    --font-sans: "Inter", sans-serif;
+}
+
+body {
+    @apply bg-ivory text-charcoal font-sans;
+}
