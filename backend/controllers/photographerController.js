@@ -1,4 +1,5 @@
 import Photographer from '../models/Photographer.js';
+import Lead from '../models/Lead.js';
 
 export const getPhotographers = async (req, res) => {
     try {
@@ -36,6 +37,18 @@ export const updatePhotographer = async (req, res) => {
     try {
         const updatedPhotographer = await Photographer.findByIdAndUpdate(id, { name, email, phone, specialty, status, _id: id }, { new: true });
         res.status(200).json(updatedPhotographer);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const getPhotographerWorks = async (req, res) => {
+    const { name } = req.params;
+    try {
+        const works = await Lead.find({
+            people: name
+        }).sort({ eventDate: -1 }); // Sort by newest first
+        res.status(200).json(works);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

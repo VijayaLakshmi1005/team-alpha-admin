@@ -1,11 +1,7 @@
 import mongoose from 'mongoose';
-import Lead from './models/Lead.js';
-import Gallery from './models/Gallery.js';
-import Finance from './models/Finance.js';
-import Event from './models/Event.js';
-import Task from './models/Task.js';
-import Photographer from './models/Photographer.js';
 import dotenv from 'dotenv';
+import Lead from './models/Lead.js';
+import Photographer from './models/Photographer.js';
 
 dotenv.config();
 
@@ -14,77 +10,65 @@ const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/teamalpha"
 const seedData = async () => {
     try {
         await mongoose.connect(MONGO_URI);
-        console.log("Seeding Team Alpha Database...");
+        console.log("Connected to DB for Seeding");
 
-        // Clean all
-        await Lead.deleteMany({});
-        await Gallery.deleteMany({});
-        await Finance.deleteMany({});
-        await Event.deleteMany({});
-        await Task.deleteMany({});
-        await Photographer.deleteMany({});
+        // Check if data exists
+        const count = await Lead.countDocuments();
+        if (count > 0) {
+            console.log("Leads already exist. Skipping seed.");
+            // Optional: Update existing leads to have default location/time if missing?
+            await Lead.updateMany(
+                { eventLocation: { $exists: false } },
+                { $set: { eventLocation: "TBD", eventTime: "10:00 AM" } }
+            );
+            console.log("Updated legacy leads with default Location/Time");
+        } else {
+            const leads = [
+                {
+                    name: "Rahul & Priya",
+                    email: "rahul.priya@example.com",
+                    phone: "+91 98765 43210",
+                    eventType: "Wedding",
+                    eventDate: new Date("2024-12-15"),
+                    eventTime: "10:30 AM",
+                    eventLocation: "Taj Hotel, Mumbai",
+                    status: "New",
+                    people: []
+                },
+                {
+                    name: "Amit's Pre-Wedding",
+                    email: "amit.k@example.com",
+                    phone: "+91 99887 76655",
+                    eventType: "Pre-Wedding",
+                    eventDate: new Date("2024-11-20"),
+                    eventTime: "04:00 PM",
+                    eventLocation: "Lodhi Garden, Delhi",
+                    status: "Follow-up",
+                    people: []
+                }
+            ];
 
-        // 1. Leads
-        const lead1 = await Lead.create({
-            name: "Ananya Sharma",
-            email: "ananya@example.com",
-            phone: "+91 98765 43210",
-            status: "New",
-            eventType: "Wedding",
-            eventDate: new Date("2026-04-12"),
-            notes: "Traditional Hindu wedding at Taj Palace."
-        });
+            await Lead.insertMany(leads);
+            console.log("Seeded 2 Leads");
+        }
 
-        const lead2 = await Lead.create({
-            name: "Rahul & Priya",
-            email: "rahul.mehta@example.com",
-            phone: "+91 91106 03953",
-            status: "Follow-up",
-            eventType: "Pre-Wedding",
-            eventDate: new Date("2026-02-20"),
-            followUpDate: new Date("2026-01-25")
-        });
+        // Seed Photographers if needed
+        const pCount = await Photographer.countDocuments();
+        if (pCount === 0) {
+            await Photographer.create({
+                name: "Lens Master",
+                email: "lens@teamalpha.com",
+                phone: "1234567890",
+                specialty: "Lead",
+                status: "Active"
+            });
+            console.log("Seeded 1 Photographer");
+        }
 
-        // 1.5 Photographers
-        await Photographer.create([
-            { name: "Sreenidhi", email: "sreenidhi@teamalpha.com", phone: "+91 91106 03953", specialty: "Lead", status: "Active" },
-            { name: "Amit Kumar", email: "amit@teamalpha.com", phone: "+91 98765 43211", specialty: "Second", status: "Active" },
-            { name: "Vikram Singh", email: "vikram@teamalpha.com", phone: "+91 98765 43212", specialty: "Video", status: "Active" },
-        ]);
-
-        // 2. Tasks
-        await Task.create({ title: "Send wedding quotation", lead: lead1._id });
-        await Task.create({ title: "Confirm Jaipur venue for pre-wedding", lead: lead2._id });
-
-        // 3. Gallery
-        await Gallery.create({
-            albumName: "The Grand Wedding 2025",
-            imageUrl: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=800",
-            isFavorite: true
-        });
-        await Gallery.create({
-            albumName: "The Grand Wedding 2025",
-            imageUrl: "https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&q=80&w=800",
-            isFavorite: false
-        });
-
-        // 4. Finance
-        await Finance.create({ type: 'income', amount: 150000, category: 'Wedding Session', status: 'Received' });
-        await Finance.create({ type: 'expense', amount: 25000, category: 'Equipment Rental', status: 'Paid' });
-
-        // 5. Events
-        await Event.create({
-            title: "Wedding: Ananya & Rahul",
-            start: new Date("2026-04-12T09:00:00"),
-            end: new Date("2026-04-12T23:00:00"),
-            lead: lead1._id,
-            location: "Taj Palace, Mumbai"
-        });
-
-        console.log("Database seeded successfully with SOP compliant data!");
-        process.exit();
+        console.log("Seeding Complete");
+        process.exit(0);
     } catch (err) {
-        console.error(err);
+        console.error("Seeding Failed", err);
         process.exit(1);
     }
 };

@@ -14,5 +14,5 @@
 }
 
 body {
-    @apply bg-ivory text-charcoal font-sans;
+    @apply bg-ivory text-charcoal font-sans leading-relaxed;
 }

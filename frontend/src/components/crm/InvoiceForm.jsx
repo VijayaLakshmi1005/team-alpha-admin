@@ -1,10 +1,16 @@
 import { useState, useMemo } from "react";
-import { FileText, Send, IndianRupee, Plus, Trash2, X } from "lucide-react";
+import { FileText, Send, IndianRupee, Plus, Trash2, X, Download } from "lucide-react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import axios from "axios";
+import toast from "react-hot-toast";
 
-export default function InvoiceForm({ onClose }) {
-  const [clientName, setClientName] = useState("");
+export default function InvoiceForm({ onClose, initialClientName = "" }) {
+  // ... state ...
+  const [clientName, setClientName] = useState(initialClientName);
   const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().split('T')[0]);
   const [items, setItems] = useState([{ description: "", price: 0 }]);
+  const [loading, setLoading] = useState(false);
 
   const addItem = () => setItems([...items, { description: "", price: 0 }]);
   const removeItem = (index) => setItems(items.filter((_, i) => i !== index));
@@ -17,11 +23,111 @@ export default function InvoiceForm({ onClose }) {
 
   const total = useMemo(() => items.reduce((sum, item) => sum + item.price, 0), [items]);
 
-  const handleSubmit = (e) => {
+  /* Helper to load image */
+  const getBase64ImageFromURL = (url) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "Anonymous";
+      img.src = url;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL("image/png"));
+      };
+      img.onerror = (error) => reject(error);
+    });
+  };
+
+  const generatePDF = async () => {
+    try {
+      const doc = new jsPDF();
+
+      // Add Logo
+      try {
+        // Ensure the file path matches where we copied it
+        const logoData = await getBase64ImageFromURL('/team-alpha-logo.png');
+        doc.addImage(logoData, 'PNG', 20, 10, 20, 20); // Logo at top-left
+      } catch (e) {
+        console.warn("Logo not found, skipping", e);
+      }
+
+      // Header Text (Shifted Right)
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(22);
+      doc.setTextColor(40, 40, 40);
+      doc.text("TEAM ALPHA", 45, 20);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
+      doc.text("Luxury Photography & Cinematography", 45, 26);
+
+      // Invoice Info
+      doc.setFontSize(10);
+      doc.text(`Invoice Date: ${invoiceDate}`, 20, 45); // Moved down slightly
+      doc.text(`Client: ${clientName}`, 20, 51);
+
+      // Table
+      autoTable(doc, {
+        startY: 65,
+        head: [['Description', 'Amount (INR)']],
+        body: items.map(item => [item.description, `Rs. ${item.price.toLocaleString()}`]),
+        theme: 'grid',
+        headStyles: { fillColor: [50, 50, 50] },
+        foot: [['TOTAL', `Rs. ${total.toLocaleString()}`]],
+        showFoot: 'lastPage'
+      });
+
+      // Footer message
+      const finalY = (doc).lastAutoTable?.finalY || 150;
+      doc.text("Thank you for choosing Team Alpha.", 20, finalY + 20);
+
+      return doc;
+    } catch (err) {
+      console.error("PDF Generation Error", err);
+      toast.error("Error generating PDF preview");
+      return null;
+    }
+  };
+
+  const handleDownload = async () => {
+    const doc = await generatePDF();
+    if (doc) {
+      doc.save(`Invoice_${clientName}_${invoiceDate}.pdf`);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Generating Invoice:", { clientName, invoiceDate, items, total });
-    alert("Invoice Generated Successfully!");
-    if (onClose) onClose();
+    setLoading(true);
+    try {
+      // Save to backend
+      await axios.post('http://localhost:5000/api/invoices', {
+        clientName,
+        invoiceDate,
+        items,
+        total,
+        status: 'Pending'
+      });
+
+      // Also save to Finance module as Income (Pending)
+      // Redundant Finance entry removed - Finance page now reads Invoices directly
+
+      toast.success("Invoice generated and saved to Finance!");
+
+      // offer download?
+      // handleDownload(); // Auto download or let user click button?
+
+      if (onClose) onClose();
+    } catch (err) {
+      console.error("Error generating invoice:", err);
+      toast.error("Failed to save invoice.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -124,12 +230,22 @@ export default function InvoiceForm({ onClose }) {
           </div>
         </div>
 
-        <button
-          type="submit"
-          className="w-full bg-charcoal text-white py-5 rounded-2xl flex items-center justify-center gap-3 text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-mutedbrown transition-all shadow-xl hover:shadow-2xl active:scale-[0.98] mt-8"
-        >
-          <Send size={18} /> Generate & Send Invoice
-        </button>
+        <div className="flex gap-4 mt-8">
+          <button
+            type="button"
+            onClick={handleDownload}
+            className="flex-1 bg-white border border-[#e6e3df] text-charcoal py-5 rounded-2xl flex items-center justify-center gap-3 text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-ivory transition-all shadow-sm active:scale-[0.98]"
+          >
+            <Download size={18} /> Download PDF
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex-1 bg-charcoal text-white py-5 rounded-2xl flex items-center justify-center gap-3 text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-mutedbrown transition-all shadow-xl hover:shadow-2xl active:scale-[0.98] disabled:opacity-70"
+          >
+            <Send size={18} /> {loading ? 'Saving...' : 'Save & Send'}
+          </button>
+        </div>
       </form>
     </div>
   );

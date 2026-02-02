@@ -3,11 +3,13 @@ import axios from "axios";
 import { Plus, Trash2, Mail, Phone, Tag, MoreVertical } from "lucide-react";
 import PhotographerForm from "./PhotographerForm";
 import toast from "react-hot-toast";
+import PhotographerProfile from "./PhotographerProfile";
 
 export default function PhotographerList() {
     const [photographers, setPhotographers] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [selectedPhotographer, setSelectedPhotographer] = useState(null);
 
     useEffect(() => {
         fetchPhotographers();
@@ -24,7 +26,8 @@ export default function PhotographerList() {
         }
     };
 
-    const deletePhotographer = async (id) => {
+    const deletePhotographer = async (id, e) => {
+        if (e) e.stopPropagation();
         if (window.confirm("Delete this photographer?")) {
             try {
                 await axios.delete(`http://localhost:5000/api/photographers/${id}`);
@@ -58,11 +61,15 @@ export default function PhotographerList() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {photographers.length > 0 ? (
                     photographers.map((p) => (
-                        <div key={p._id} className="bg-white rounded-3xl p-6 border border-[#e6e3df]/40 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+                        <div
+                            key={p._id}
+                            onClick={() => setSelectedPhotographer(p)}
+                            className="bg-white rounded-3xl p-6 border border-[#e6e3df]/40 shadow-sm hover:shadow-md transition-all group relative overflow-hidden cursor-pointer hover:border-mutedbrown"
+                        >
                             <div className="flex items-start justify-between">
                                 <div className="flex items-center gap-4">
                                     <div className="w-14 h-14 bg-ivory text-mutedbrown rounded-2xl flex items-center justify-center font-serif text-2xl border border-transparent group-hover:bg-charcoal group-hover:text-white transition-all">
-                                        {p.name[0]}
+                                        {(p.name || "?")[0]}
                                     </div>
                                     <div>
                                         <h3 className="font-bold text-charcoal">{p.name}</h3>
@@ -70,7 +77,7 @@ export default function PhotographerList() {
                                     </div>
                                 </div>
                                 <button
-                                    onClick={() => deletePhotographer(p._id)}
+                                    onClick={(e) => deletePhotographer(p._id, e)}
                                     className="text-warmgray hover:text-red-500 p-2 opacity-0 group-hover:opacity-100 transition-all"
                                 >
                                     <Trash2 size={16} />
@@ -111,12 +118,23 @@ export default function PhotographerList() {
             </div>
 
             {showForm && (
-                <div className="fixed inset-0 bg-charcoal/40 backdrop-blur-md z-120 flex items-center justify-center p-4">
+                <div className="fixed inset-0 bg-charcoal/40 backdrop-blur-md z-50 flex items-center justify-center p-4">
                     <PhotographerForm
                         onClose={() => setShowForm(false)}
                         onAdded={handleAdded}
                     />
                 </div>
+            )}
+
+            {selectedPhotographer && (
+                <PhotographerProfile
+                    photographer={selectedPhotographer}
+                    onClose={() => setSelectedPhotographer(null)}
+                    onUpdate={(updated) => {
+                        setPhotographers(photographers.map(p => p._id === updated._id ? updated : p));
+                        setSelectedPhotographer(updated);
+                    }}
+                />
             )}
         </div>
     );

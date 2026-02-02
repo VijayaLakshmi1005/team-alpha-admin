@@ -17,6 +17,8 @@ import financeRoutes from './routes/financeRoutes.js';
 import calendarRoutes from './routes/calendarRoutes.js';
 import photographerRoutes from './routes/photographerRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
+import invoiceRoutes from './routes/invoiceRoutes.js';
+import { startScheduler } from './utils/notificationScheduler.js';
 
 dotenv.config();
 
@@ -27,8 +29,16 @@ app.use(express.json());
 const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/teamalpha";
 
 mongoose.connect(MONGO_URI)
-    .then(() => console.log("MongoDB Connected for Team Alpha Admin"))
+    .then(() => {
+        console.log("MongoDB Connected for Team Alpha Admin");
+        // Start the Cron Job Scheduler
+        startScheduler();
+    })
     .catch(err => console.error("MongoDB Connection Error:", err));
+
+import dashboardRoutes from './routes/dashboardRoutes.js';
+
+/* ... after other route imports ... */
 
 // API Routes
 app.use('/api/leads', leadRoutes);
@@ -37,28 +47,8 @@ app.use('/api/finance', financeRoutes);
 app.use('/api/calendar', calendarRoutes);
 app.use('/api/photographers', photographerRoutes);
 app.use('/api/tasks', taskRoutes);
-
-// Dashboard Stats endpoint
-import Lead from './models/Lead.js';
-import Gallery from './models/Gallery.js';
-
-app.get('/api/dashboard/stats', async (req, res) => {
-    try {
-        const totalPhotos = await Gallery.countDocuments();
-        const leadsCount = await Lead.countDocuments();
-        const pendingApprovals = 14; // Mock or calculate from a specific model if exists
-        const traffic = '3.2K'; // Mock stats
-
-        res.json({
-            totalPhotos: totalPhotos || 12480,
-            storageUsage: '82%',
-            pendingApprovals,
-            traffic
-        });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
+app.use('/api/invoices', invoiceRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

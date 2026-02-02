@@ -1,17 +1,49 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { X, Mail, Phone, Calendar, Tag, User, Users, Plus, CheckCircle2, MoreVertical, Trash2 } from "lucide-react";
+import { X, Mail, Phone, Calendar, Tag, User, Users, Plus, CheckCircle2, MoreVertical, Trash2, Edit2, MapPin, Clock, Save } from "lucide-react";
 import FollowUpList from "./FollowUpList";
 import TaskList from "./TaskList";
 import toast from "react-hot-toast";
+import PhotographerProfile from "./PhotographerProfile";
 
-export default function LeadDetails({ lead: initialLead, onClose }) {
+export default function LeadDetails({ lead: initialLead, onClose, onGenerateInvoice }) {
+  console.log("Rendering LeadDetails", { hasGenerateInvoice: !!onGenerateInvoice });
   const [lead, setLead] = useState(initialLead);
   const [teamMembers, setTeamMembers] = useState(initialLead.people || []);
   const [allPhotographers, setAllPhotographers] = useState([]);
   const [selectedPhotographer, setSelectedPhotographer] = useState("");
   const [showAddMember, setShowAddMember] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  const [selectedPhotographerProfile, setSelectedPhotographerProfile] = useState(null);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState({ ...initialLead });
+
+  const [showFullLog, setShowFullLog] = useState(false);
+
+  const handleUpdateNotes = async (notes) => {
+    try {
+      const response = await axios.patch(`http://localhost:5000/api/leads/${lead._id}`, { notes });
+      setLead(response.data);
+      toast.success("Notes updated");
+    } catch (e) { toast.error("Failed to save notes"); }
+  };
+
+  const handleSaveLead = async () => {
+    setSaving(true);
+    try {
+      const response = await axios.patch(`http://localhost:5000/api/leads/${lead._id}`, editData);
+      setLead(response.data);
+      setIsEditing(false);
+      toast.success("Lead details updated!");
+    } catch (err) {
+      console.error("Failed to update lead", err);
+      toast.error("Failed to update lead details.");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   useEffect(() => {
     fetchPhotographers();
@@ -38,7 +70,7 @@ export default function LeadDetails({ lead: initialLead, onClose }) {
         setLead(response.data);
         setSelectedPhotographer("");
         setShowAddMember(false);
-        toast.success(`${selectedPhotographer} assigned to this project! Email reminder sent.`);
+        toast.success(`${selectedPhotographer} assigned to this project!`);
       } catch (err) {
         console.error("Failed to update team", err);
         toast.error("Failed to assign team member.");
@@ -49,6 +81,7 @@ export default function LeadDetails({ lead: initialLead, onClose }) {
   };
 
   const removeMember = async (member) => {
+    // e.stopPropagation() handled in onClick
     const newTeam = teamMembers.filter(m => m !== member);
     setSaving(true);
     try {
@@ -66,6 +99,31 @@ export default function LeadDetails({ lead: initialLead, onClose }) {
     }
   };
 
+  const sendReminder = async (member) => {
+    // e.stopPropagation() handled in onClick
+    try {
+      await axios.post(`http://localhost:5000/api/leads/${lead._id}/remind/${member}`);
+      toast.success(`Reminder sent to ${member}!`);
+    } catch (err) {
+      console.error("Failed to send reminder", err);
+      toast.error("Failed to send reminder.");
+    }
+  };
+
+  const handlePhotographerClick = async (member) => {
+    if (!member) return;
+    const photographer = allPhotographers.find(p => p.name === member);
+    if (photographer) {
+      setSelectedPhotographerProfile(photographer);
+    } else {
+      try {
+        const res = await axios.get("http://localhost:5000/api/photographers");
+        const found = res.data.find(p => p.name === member);
+        if (found) setSelectedPhotographerProfile(found);
+      } catch (e) { console.error(e); }
+    }
+  };
+
   if (!lead) return null;
 
   return (
@@ -75,7 +133,7 @@ export default function LeadDetails({ lead: initialLead, onClose }) {
         <div className="sticky top-0 bg-ivory/80 backdrop-blur-md px-6 md:px-10 py-8 border-b border-[#e6e3df] flex justify-between items-center z-10">
           <div className="flex items-center gap-5">
             <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center border border-[#e6e3df] shadow-sm font-serif text-2xl text-mutedbrown uppercase">
-              {lead.name[0]}
+              {(lead.name || "?")[0]}
             </div>
             <div>
               <h2 className="font-serif text-2xl md:text-3xl text-charcoal">{lead.name}</h2>
@@ -90,38 +148,210 @@ export default function LeadDetails({ lead: initialLead, onClose }) {
               </div>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-3 hover:bg-white rounded-full transition-all text-warmgray hover:text-charcoal hover:rotate-90"
-          >
-            <X size={24} />
-          </button>
+          <div className="flex items-center gap-2">
+            {!isEditing ? (
+              <button
+                onClick={() => {
+                  setEditData(lead);
+                  setIsEditing(true);
+                }}
+                className="p-2 hover:bg-white rounded-full transition-all text-warmgray hover:text-charcoal"
+                title="Edit Lead Details"
+              >
+                <Edit2 size={20} />
+              </button>
+            ) : (
+              <button
+                onClick={handleSaveLead}
+                disabled={saving}
+                className="p-2 bg-charcoal text-white rounded-full transition-all hover:bg-mutedbrown"
+                title="Save Changes"
+              >
+                <Save size={20} />
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="p-3 hover:bg-white rounded-full transition-all text-warmgray hover:text-charcoal hover:rotate-90"
+            >
+              <X size={24} />
+            </button>
+          </div>
         </div>
 
         <div className="p-6 md:p-10 space-y-12 flex-1">
+          {/* Quick Info Grid */}
           {/* Quick Info Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm bg-white/50 p-6 rounded-3xl border border-ivory">
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-warmgray">
                 <Mail size={16} strokeWidth={1.5} />
-                <span className="text-charcoal font-medium truncate">{lead.email}</span>
+                {isEditing ? (
+                  <input
+                    value={editData.email}
+                    onChange={e => setEditData({ ...editData, email: e.target.value })}
+                    className="bg-white border border-ivory rounded px-2 py-1 w-full text-charcoal focus:outline-mutedbrown"
+                  />
+                ) : (
+                  <span className="text-charcoal font-medium truncate">{lead.email}</span>
+                )}
               </div>
               <div className="flex items-center gap-3 text-warmgray">
                 <Phone size={16} strokeWidth={1.5} />
-                <span className="text-charcoal font-medium">{lead.phone || "Not provided"}</span>
+                {isEditing ? (
+                  <input
+                    value={editData.phone}
+                    onChange={e => setEditData({ ...editData, phone: e.target.value })}
+                    className="bg-white border border-ivory rounded px-2 py-1 w-full text-charcoal focus:outline-mutedbrown"
+                  />
+                ) : (
+                  <span className="text-charcoal font-medium">{lead.phone || "Not provided"}</span>
+                )}
+              </div>
+              <div className="flex items-center gap-3 text-warmgray">
+                <MapPin size={16} strokeWidth={1.5} />
+                {isEditing ? (
+                  <input
+                    placeholder="Event Location"
+                    value={editData.eventLocation || ""}
+                    onChange={e => setEditData({ ...editData, eventLocation: e.target.value })}
+                    className="bg-white border border-ivory rounded px-2 py-1 w-full text-charcoal focus:outline-mutedbrown"
+                  />
+                ) : (
+                  <span className="text-charcoal font-medium">{lead.eventLocation || "Location TBD"}</span>
+                )}
               </div>
             </div>
+
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-warmgray">
                 <Tag size={16} strokeWidth={1.5} />
-                <span className="text-charcoal font-medium">{lead.eventType || "General Session"}</span>
+                {isEditing ? (
+                  <select
+                    value={editData.eventType}
+                    onChange={e => setEditData({ ...editData, eventType: e.target.value })}
+                    className="bg-white border border-ivory rounded px-2 py-1 w-full text-charcoal focus:outline-mutedbrown appearance-none"
+                  >
+                    <option>Wedding</option>
+                    <option>Pre-Wedding</option>
+                    <option>Engagement</option>
+                    <option>Reception</option>
+                    <option>Fashion Shoot</option>
+                  </select>
+                ) : (
+                  <span className="text-charcoal font-medium">{lead.eventType || "General Session"}</span>
+                )}
               </div>
               <div className="flex items-center gap-3 text-warmgray">
                 <Calendar size={16} strokeWidth={1.5} />
-                <span className="text-charcoal font-medium">
-                  {lead.eventDate ? new Date(lead.eventDate).toLocaleDateString() : 'TBD'}
-                </span>
+                {isEditing ? (
+                  <div className="flex flex-col gap-1 w-full">
+                    <label className="text-[9px] uppercase font-bold text-mutedbrown">Event Date</label>
+                    <input
+                      type="date"
+                      value={editData.eventDate ? new Date(editData.eventDate).toISOString().split('T')[0] : ""}
+                      onChange={e => setEditData({ ...editData, eventDate: e.target.value })}
+                      className="bg-white border border-ivory rounded px-2 py-1 w-full text-charcoal focus:outline-mutedbrown"
+                    />
+                    <label className="text-[9px] uppercase font-bold text-mutedbrown mt-1">Next Follow-up</label>
+                    <input
+                      type="date"
+                      value={editData.followUpDate ? new Date(editData.followUpDate).toISOString().split('T')[0] : ""}
+                      onChange={e => setEditData({ ...editData, followUpDate: e.target.value })}
+                      className="bg-white border border-ivory rounded px-2 py-1 w-full text-charcoal focus:outline-mutedbrown"
+                    />
+                  </div>
+                ) : (
+                  <span className="text-charcoal font-medium">
+                    {lead.eventDate ? new Date(lead.eventDate).toLocaleDateString() : 'Date TBD'}
+                  </span>
+                )}
               </div>
+              <div className="flex items-center gap-3 text-warmgray">
+                <Clock size={16} strokeWidth={1.5} />
+                {isEditing ? (
+                  <input
+                    type="time"
+                    value={editData.eventTime || ""}
+                    onChange={e => setEditData({ ...editData, eventTime: e.target.value })}
+                    className="bg-white border border-ivory rounded px-2 py-1 w-full text-charcoal focus:outline-mutedbrown"
+                  />
+                ) : (
+                  <span className="text-charcoal font-medium">{lead.eventTime || "Time TBD"}</span>
+                )}
+              </div>
+            </div>
+
+            <div className="md:col-span-2 bg-ivory/30 p-5 rounded-2xl border border-ivory/50">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-xs font-bold uppercase tracking-widest text-mutedbrown">Payment Plan</h4>
+                {!isEditing && (
+                  <span className={`text-[9px] uppercase font-bold tracking-widest px-2 py-1 rounded-full ${lead.paymentStatus === 'Paid' ? 'bg-green-100 text-green-700' :
+                    lead.paymentStatus === 'Deposit Paid' ? 'bg-amber-100 text-amber-700' :
+                      'bg-red-50 text-red-600'
+                    }`}>
+                    {lead.paymentStatus || 'Unpaid'}
+                  </span>
+                )}
+              </div>
+
+              {isEditing ? (
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-[9px] text-warmgray uppercase tracking-wider font-bold">Total (₹)</label>
+                    <input
+                      type="number"
+                      className="w-full bg-white border border-ivory rounded px-2 py-1 text-sm mt-1 focus:outline-mutedbrown"
+                      value={editData.totalAmount || 0}
+                      onChange={e => setEditData({ ...editData, totalAmount: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[9px] text-warmgray uppercase tracking-wider font-bold">Received (₹)</label>
+                    <input
+                      type="number"
+                      className="w-full bg-white border border-ivory rounded px-2 py-1 text-sm mt-1 focus:outline-mutedbrown"
+                      value={editData.depositAmount || 0}
+                      onChange={e => setEditData({ ...editData, depositAmount: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[9px] text-warmgray uppercase tracking-wider font-bold">Status</label>
+                    <select
+                      className="w-full bg-white border border-ivory rounded px-2 py-1 text-sm mt-1 focus:outline-mutedbrown appearance-none"
+                      value={editData.paymentStatus || 'Unpaid'}
+                      onChange={e => setEditData({ ...editData, paymentStatus: e.target.value })}
+                    >
+                      <option>Unpaid</option>
+                      <option>Deposit Paid</option>
+                      <option>Paid</option>
+                    </select>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-6">
+                  <div>
+                    <p className="text-[10px] text-warmgray uppercase tracking-wider font-bold">Total Value</p>
+                    <p className="font-serif text-xl text-charcoal">₹{(lead.totalAmount || 0).toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-warmgray uppercase tracking-wider font-bold">Received</p>
+                    <p className="font-serif text-xl text-emerald-700">₹{(lead.depositAmount || 0).toLocaleString()}</p>
+                  </div>
+                  <div className="flex-1 flex flex-col justify-end">
+                    <div className="flex justify-between text-[9px] font-bold uppercase text-warmgray mb-1">
+                      <span>Progress</span>
+                      <span>{Math.min(100, Math.round(((lead.depositAmount || 0) / (lead.totalAmount || 1)) * 100))}%</span>
+                    </div>
+                    <div className="w-full h-2 bg-white rounded-full overflow-hidden border border-ivory">
+                      <div
+                        className={`h-full transition-all duration-500 ${lead.paymentStatus === 'Paid' ? 'bg-green-500' : 'bg-gold'}`}
+                        style={{ width: `${Math.min(100, ((lead.depositAmount || 0) / (lead.totalAmount || 1)) * 100)}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -164,11 +394,22 @@ export default function LeadDetails({ lead: initialLead, onClose }) {
 
             <div className="flex flex-wrap gap-3">
               {teamMembers.length > 0 ? teamMembers.map((member, idx) => (
-                <div key={idx} className="flex items-center gap-3 bg-white border border-ivory px-4 py-2 rounded-2xl shadow-sm group">
+                <div
+                  key={idx}
+                  onClick={() => handlePhotographerClick(member)}
+                  className="flex items-center gap-3 bg-white border border-ivory px-4 py-2 rounded-2xl shadow-sm group cursor-pointer hover:border-mutedbrown transition-all"
+                >
                   <div className="w-2 h-2 rounded-full bg-green-500"></div>
                   <span className="text-xs font-bold text-charcoal">{member}</span>
+                  {/* <button
+                    onClick={(e) => { e.stopPropagation(); sendReminder(member); }}
+                    className="text-warmgray hover:text-gold opacity-0 group-hover:opacity-100 transition-all mr-1"
+                    title="Send Reminder Email"
+                  >
+                    <Bell size={12} />
+                  </button> */}
                   <button
-                    onClick={() => removeMember(member)}
+                    onClick={(e) => { e.stopPropagation(); removeMember(member); }}
                     className="text-warmgray hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
                   >
                     <X size={12} />
@@ -183,23 +424,81 @@ export default function LeadDetails({ lead: initialLead, onClose }) {
           {/* Workflow Sections */}
           <div className="grid grid-cols-1 gap-10">
             <TaskList leadId={lead._id} tasks={lead.tasks || []} />
-            <FollowUpList />
+            <FollowUpList
+              lead={lead}
+              onUpdate={(updatedLead) => setLead(updatedLead)}
+            />
           </div>
         </div>
+
 
         {/* Footer Actions */}
         <div className="p-8 border-t border-[#e6e3df] bg-ivory/80 backdrop-blur-md sticky bottom-0">
           <div className="flex gap-4">
-            <button className="flex-1 bg-charcoal text-white text-[11px] uppercase tracking-[0.2em] font-bold py-5 rounded-2xl hover:bg-mutedbrown transition-all shadow-xl active:scale-95">
+            <button
+              onClick={onGenerateInvoice}
+              className="flex-1 bg-charcoal text-white text-[11px] uppercase tracking-[0.2em] font-bold py-5 rounded-2xl hover:bg-mutedbrown transition-all shadow-xl active:scale-95">
               Generate Invoice
             </button>
-            <button className="flex-1 bg-white border border-[#e6e3df] text-charcoal text-[11px] uppercase tracking-[0.2em] font-bold py-5 rounded-2xl hover:bg-ivory transition-all shadow-sm active:scale-95">
+            <button
+              onClick={() => setShowFullLog(true)}
+              className="flex-1 bg-white border border-[#e6e3df] text-charcoal text-[11px] uppercase tracking-[0.2em] font-bold py-5 rounded-2xl hover:bg-ivory transition-all shadow-sm active:scale-95"
+            >
               Full Log
             </button>
           </div>
         </div>
-      </div>
-    </div>
+      </div >
+
+      {selectedPhotographerProfile && (
+        <PhotographerProfile
+          photographer={selectedPhotographerProfile}
+          onClose={() => setSelectedPhotographerProfile(null)}
+          onUpdate={(updated) => {
+            setSelectedPhotographerProfile(updated);
+            setAllPhotographers(prev => prev.map(p => p._id === updated._id ? updated : p));
+          }}
+        />
+      )
+      }
+
+      {
+        showFullLog && (
+          <div className="fixed inset-0 bg-charcoal/60 backdrop-blur-md z-60 flex items-center justify-center p-4">
+            <div className="bg-white w-full max-w-lg rounded-3xl p-8 shadow-2xl animate-in zoom-in-95 duration-200">
+              <div className="flex justify-between items-center mb-6 border-b border-ivory pb-4">
+                <h3 className="font-serif text-2xl text-charcoal">Activity Log & Notes</h3>
+                <button onClick={() => setShowFullLog(false)}><X size={20} className="text-warmgray hover:text-charcoal" /></button>
+              </div>
+
+              <div className="space-y-6">
+                <div className="bg-ivory/30 p-4 rounded-2xl">
+                  <h4 className="text-[10px] uppercase font-bold tracking-widest text-warmgray mb-2">Record Details</h4>
+                  <div className="text-xs space-y-1 text-charcoal">
+                    <p><span className="font-bold text-mutedbrown">Created:</span> {new Date(lead.createdAt || Date.now()).toLocaleString()}</p>
+                    <p><span className="font-bold text-mutedbrown">Last Updated:</span> {new Date(lead.updatedAt || Date.now()).toLocaleString()}</p>
+                    <p><span className="font-bold text-mutedbrown">Lead ID:</span> {lead._id}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-[10px] uppercase font-bold tracking-widest text-warmgray mb-3 flex items-center gap-2">
+                    <Edit2 size={12} /> Key Notes
+                  </h4>
+                  <textarea
+                    className="w-full h-32 bg-white border border-[#e6e3df] rounded-2xl p-4 text-sm focus:outline-mutedbrown resize-none"
+                    placeholder="Add important notes about this client..."
+                    value={lead.notes || ""}
+                    onChange={(e) => setLead({ ...lead, notes: e.target.value })}
+                    onBlur={(e) => handleUpdateNotes(e.target.value)}
+                  ></textarea>
+                  <p className="text-[10px] text-warmgray mt-2 italic">* Notes are auto-saved when you click away.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      }
+    </div >
   );
 }
-

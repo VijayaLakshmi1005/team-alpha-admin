@@ -5,7 +5,7 @@ const ReportSummary = () => {
         <div className="card">
             <h3>Financial Report</h3>
             <p>Summary charts and graphs placeholder.</p>
-        </div>
+        </div>  
     );
 };
 

@@ -17,14 +17,14 @@ export default function Layout() {
             {/* Mobile Sidebar Overlay */}
             {isSidebarOpen && (
                 <div
-                    className="lg:hidden fixed inset-0 bg-charcoal/40 backdrop-blur-sm z-[90] animate-in fade-in duration-300"
+                    className="lg:hidden fixed inset-0 bg-charcoal/40 backdrop-blur-sm z-90 animate-in fade-in duration-300"
                     onClick={() => setIsSidebarOpen(false)}
                 />
             )}
 
             {/* Mobile Sidebar Content */}
             <div className={`
-        lg:hidden fixed left-0 top-0 h-screen z-[100] transition-transform duration-500 ease-in-out
+        lg:hidden fixed left-0 top-0 h-screen z-100 transition-transform duration-500 ease-in-out
         ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
       `}>
                 <Sidebar onClose={() => setIsSidebarOpen(false)} />

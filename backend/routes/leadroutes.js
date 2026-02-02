@@ -2,7 +2,7 @@ import express from 'express';
 import Lead from '../models/Lead.js';
 import Task from '../models/Task.js';
 import Photographer from '../models/Photographer.js';
-import { sendAssignmentEmail } from '../utils/emailService.js';
+// import { sendAssignmentEmail, sendReminderEmail } from '../utils/emailService.js';
 
 const router = express.Router();
 
@@ -33,23 +33,28 @@ router.patch('/:id', async (req, res) => {
 
         // If people were updated, find new additions
         if (req.body.people && oldLead) {
-            const newPeopleNames = req.body.people.filter(p => !oldLead.people.includes(p));
-
-            for (const name of newPeopleNames) {
-                const photographer = await Photographer.findOne({ name });
-                if (photographer && photographer.email) {
-                    await sendAssignmentEmail(
-                        photographer.email,
-                        photographer.name,
-                        updatedLead.name,
-                        updatedLead.eventType,
-                        updatedLead.eventDate ? updatedLead.eventDate.toLocaleDateString() : 'TBD'
-                    );
-                }
-            }
+            // Logic for checking changes in people assignment can stay if needed for logging, 
+            // but we removed email sending as requested.
         }
 
         res.json(updatedLead);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// POST Remind Photographer
+router.post('/:id/remind/:photographerName', async (req, res) => {
+    try {
+        const lead = await Lead.findById(req.params.id);
+        const photographer = await Photographer.findOne({ name: req.params.photographerName });
+
+        if (!lead || !photographer) {
+            return res.status(404).json({ message: "Lead or Photographer not found" });
+        }
+
+        // Email service disabled by user request
+        res.json({ message: "Reminder mocked (Email service invalid)" });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

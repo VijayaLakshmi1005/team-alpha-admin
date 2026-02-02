@@ -36,17 +36,21 @@ export default function TaskList({ leadId, tasks: initialTasks = [] }) {
     e.preventDefault();
     if (!newTaskTitle.trim()) return;
 
-    if (!leadId) {
-      toast.error("Tasks must be assigned to a Lead. Open a client profile to add tasks.");
-      return;
-    }
-
     try {
-      const response = await axios.post(`http://localhost:5000/api/leads/${leadId}/tasks`, {
-        title: newTaskTitle,
-        status: "pending"
-      });
-      setTasks([...tasks, response.data]);
+      let response;
+      if (leadId) {
+        response = await axios.post(`http://localhost:5000/api/leads/${leadId}/tasks`, {
+          title: newTaskTitle,
+          status: "pending"
+        });
+      } else {
+        // Global task
+        response = await axios.post(`http://localhost:5000/api/tasks`, {
+          title: newTaskTitle,
+          status: "pending"
+        });
+      }
+      setTasks([response.data, ...tasks]);
       setNewTaskTitle("");
       setIsAdding(false);
       toast.success("Task added to workflow.");

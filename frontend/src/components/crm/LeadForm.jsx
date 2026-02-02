@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, User, Mail, Phone, Calendar, Tag, Save } from "lucide-react";
+import { X, User, Mail, Phone, Calendar, Tag, Save, MapPin, Clock } from "lucide-react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
@@ -10,6 +10,8 @@ export default function LeadForm({ onClose, onLeadAdded }) {
     phone: "",
     eventType: "Wedding",
     eventDate: "",
+    eventTime: "",
+    eventLocation: "",
     status: "New",
   });
 
@@ -32,7 +34,7 @@ export default function LeadForm({ onClose, onLeadAdded }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-charcoal/40 backdrop-blur-md z-120 flex items-center justify-center p-4 overflow-y-auto">
+    <div className="fixed inset-0 bg-charcoal/40 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
       <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
         <div className="p-8 border-b border-ivory flex justify-between items-center bg-ivory/20">
           <div>
@@ -113,6 +115,29 @@ export default function LeadForm({ onClose, onLeadAdded }) {
             </div>
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-[10px] uppercase font-bold tracking-widest text-warmgray ml-1">
+                <Clock size={12} /> Event Time
+              </label>
+              <input
+                type="time"
+                className="w-full bg-ivory/40 border border-[#e6e3df] rounded-2xl px-5 py-4 text-sm focus:outline-none focus:ring-1 focus:ring-mutedbrown transition-all"
+                value={formData.eventTime}
+                onChange={(e) => setFormData({ ...formData, eventTime: e.target.value })}
+              />
+            </div>
+            <div className="col-span-1 md:col-span-2 space-y-2">
+              <label className="flex items-center gap-2 text-[10px] uppercase font-bold tracking-widest text-warmgray ml-1">
+                <MapPin size={12} /> Event Location
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Taj Lands End, Mumbai"
+                className="w-full bg-ivory/40 border border-[#e6e3df] rounded-2xl px-5 py-4 text-sm focus:outline-none focus:ring-1 focus:ring-mutedbrown transition-all"
+                value={formData.eventLocation}
+                onChange={(e) => setFormData({ ...formData, eventLocation: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-[10px] uppercase font-bold tracking-widest text-warmgray ml-1">
                 <Tag size={12} /> Initial Status
               </label>
               <select
@@ -123,6 +148,42 @@ export default function LeadForm({ onClose, onLeadAdded }) {
                 <option>New</option>
                 <option>Follow-up</option>
                 <option>Converted</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-ivory/20 p-6 rounded-2xl border border-ivory/50">
+            <div className="col-span-full text-xs font-bold uppercase tracking-widest text-mutedbrown mb-2">Payment Plan</div>
+            <div className="space-y-2">
+              <label className="text-[10px] uppercase font-bold tracking-widest text-warmgray ml-1">Total Value (₹)</label>
+              <input
+                type="number"
+                placeholder="0"
+                className="w-full bg-white border border-[#e6e3df] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-mutedbrown"
+                value={formData.totalAmount || ''}
+                onChange={e => setFormData({ ...formData, totalAmount: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] uppercase font-bold tracking-widest text-warmgray ml-1">Deposit (₹)</label>
+              <input
+                type="number"
+                placeholder="0"
+                className="w-full bg-white border border-[#e6e3df] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-mutedbrown"
+                value={formData.depositAmount || ''}
+                onChange={e => setFormData({ ...formData, depositAmount: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] uppercase font-bold tracking-widest text-warmgray ml-1">Payment Status</label>
+              <select
+                className="w-full bg-white border border-[#e6e3df] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-mutedbrown appearance-none"
+                value={formData.paymentStatus || 'Unpaid'}
+                onChange={e => setFormData({ ...formData, paymentStatus: e.target.value })}
+              >
+                <option>Unpaid</option>
+                <option>Deposit Paid</option>
+                <option>Paid</option>
               </select>
             </div>
           </div>

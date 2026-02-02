@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { Plus, Search, Filter, MoreHorizontal, FileText, CheckSquare, Users } from "lucide-react";
 import LeadDetails from "../components/crm/LeadDetails";
@@ -10,18 +11,32 @@ import { Trash2, UserPlus } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function CRM() {
+  const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("leads");
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedLead, setSelectedLead] = useState(null);
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
   const [filterStatus, setFilterStatus] = useState("All");
+
+  /* State for pre-filling invoice */
+  const [invoiceDefaults, setInvoiceDefaults] = useState({ clientName: "" });
+
+  const handleGenerateInvoice = (lead) => {
+    setInvoiceDefaults({ clientName: lead.name });
+    setShowInvoiceForm(true);
+  };
 
   useEffect(() => {
     fetchLeads();
   }, []);
+
+  useEffect(() => {
+    const query = searchParams.get("search");
+    if (query) setSearchQuery(query);
+  }, [searchParams]);
 
   const fetchLeads = async () => {
     setLoading(true);
@@ -55,18 +70,18 @@ export default function CRM() {
   };
 
   const filteredLeads = leads.filter(lead => {
-    const matchesSearch = lead.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      lead.email.toLowerCase().includes(searchQuery.toLowerCase());
+    const nameMatch = (lead.name || "").toLowerCase().includes(searchQuery.toLowerCase());
+    const emailMatch = (lead.email || "").toLowerCase().includes(searchQuery.toLowerCase());
     const matchesFilter = filterStatus === "All" || lead.status === filterStatus;
-    return matchesSearch && matchesFilter;
+    return (nameMatch || emailMatch) && matchesFilter;
   });
 
   return (
     <div className="space-y-6 md:space-y-10 px-4 md:px-0">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
-          <h1 className="font-serif text-3xl md:text-4xl text-charcoal">CRM</h1>
-          <p className="text-sm text-warmgray mt-1">Nurturing relationships, capturing stories.</p>
+          <h1 className="font-serif text-3xl md:text-4xl text-charcoal">Team Alpha Photography</h1>
+          <p className="text-sm text-warmgray mt-1 uppercase tracking-widest font-bold text-[10px]">The Wedding Artist</p>
         </div>
         <button
           onClick={() => {
@@ -159,7 +174,7 @@ export default function CRM() {
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-4">
                           <div className="w-12 h-12 bg-ivory text-mutedbrown rounded-2xl flex items-center justify-center font-serif text-xl border border-transparent group-hover:bg-charcoal group-hover:text-white transition-all shadow-sm">
-                            {lead.name[0]}
+                            {(lead.name || "?")[0]}
                           </div>
                           <div>
                             <div className="font-bold text-charcoal text-base">{lead.name}</div>
@@ -185,6 +200,14 @@ export default function CRM() {
                       </td>
                       <td className="px-8 py-6 hidden lg:table-cell text-xs text-warmgray font-medium italic">
                         {new Date(lead.createdAt || Date.now()).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        <div className="mt-1">
+                          <span className={`text-[8px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded border ${lead.paymentStatus === 'Paid' ? 'border-green-200 text-green-700 bg-green-50' :
+                            lead.paymentStatus === 'Deposit Paid' ? 'border-amber-200 text-amber-700 bg-amber-50' :
+                              'border-red-200 text-red-600 bg-red-50'
+                            }`}>
+                            {lead.paymentStatus || 'Unpaid'}
+                          </span>
+                        </div>
                       </td>
                       <td className="px-8 py-6 text-right">
                         <div className="flex justify-end gap-2">
@@ -194,7 +217,10 @@ export default function CRM() {
                           >
                             <Trash2 size={18} />
                           </button>
-                          <button className="text-warmgray hover:text-charcoal p-3 rounded-full hover:bg-white transition-all shadow-sm hover:shadow-md">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setSelectedLead(lead); }}
+                            className="text-warmgray hover:text-charcoal p-3 rounded-full hover:bg-white transition-all shadow-sm hover:shadow-md"
+                          >
                             <MoreHorizontal size={20} />
                           </button>
                         </div>
@@ -244,8 +270,14 @@ export default function CRM() {
       )}
 
       {showInvoiceForm && (
-        <div className="fixed inset-0 bg-charcoal/40 backdrop-blur-md z-120 flex items-center justify-center p-4">
-          <InvoiceForm onClose={() => setShowInvoiceForm(false)} />
+        <div className="fixed inset-0 bg-charcoal/40 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <InvoiceForm
+            onClose={() => {
+              setShowInvoiceForm(false);
+              setInvoiceDefaults({ clientName: "" });
+            }}
+            initialClientName={invoiceDefaults.clientName}
+          />
         </div>
       )}
 
@@ -254,6 +286,7 @@ export default function CRM() {
         <LeadDetails
           lead={selectedLead}
           onClose={() => setSelectedLead(null)}
+          onGenerateInvoice={() => handleGenerateInvoice(selectedLead)}
         />
       )}
     </div>

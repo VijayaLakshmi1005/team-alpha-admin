@@ -14,6 +14,17 @@ router.get('/', async (req, res) => {
     }
 });
 
+// POST create a global task (no lead)
+router.post('/', async (req, res) => {
+    try {
+        const task = new Task(req.body);
+        await task.save();
+        res.status(201).json(task);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // PATCH update task (status or title)
 router.patch('/:id', async (req, res) => {
     try {
