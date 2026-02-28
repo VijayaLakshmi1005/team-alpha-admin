@@ -23,9 +23,6 @@ import calendarRoutes from './routes/calendarRoutes.js';
 import photographerRoutes from './routes/photographerRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
 import invoiceRoutes from './routes/invoiceRoutes.js';
-import notificationRoutes from './routes/notificationRoutes.js';
-import { startScheduler } from './utils/notificationScheduler.js';
-
 dotenv.config();
 
 const app = express();
@@ -40,8 +37,6 @@ const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/teamalpha"
 mongoose.connect(MONGO_URI)
     .then(() => {
         console.log("MongoDB Connected for Team Alpha Admin");
-        // Start the Cron Job Scheduler
-        startScheduler();
     })
     .catch(err => console.error("MongoDB Connection Error:", err));
 
@@ -58,7 +53,6 @@ app.use('/api/photographers', photographerRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/notifications', notificationRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

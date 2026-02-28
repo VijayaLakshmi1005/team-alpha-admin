@@ -9,7 +9,6 @@ export default function Topbar({ onMenuClick }) {
     const navigate = useNavigate();
     const [query, setQuery] = useState("");
     const [showProfileModal, setShowProfileModal] = useState(false);
-    const [showNotifications, setShowNotifications] = useState(false);
 
     // Persistent profile state could be moved to Context/Redux in future
     const [adminProfile, setAdminProfile] = useState({
@@ -17,25 +16,6 @@ export default function Topbar({ onMenuClick }) {
         role: "Admin Registry"
     });
 
-
-    /* ... inside Topbar ... */
-    const [notifications, setNotifications] = useState([]);
-    const hasUnread = notifications.some(n => !n.isRead);
-
-    useEffect(() => {
-        fetchNotifications();
-        const interval = setInterval(fetchNotifications, 10000);
-        return () => clearInterval(interval);
-    }, []);
-
-    const fetchNotifications = async () => {
-        try {
-            const res = await axios.get("http://localhost:5000/api/notifications");
-            setNotifications(res.data.slice(0, 5)); // limit dropdown to recent 5
-        } catch (err) {
-            console.error(err);
-        }
-    };
 
     const handleSearch = (e) => {
         if (e.key === 'Enter' && query.trim()) {
@@ -68,43 +48,7 @@ export default function Topbar({ onMenuClick }) {
 
                 <div className="flex items-center gap-3 md:gap-6">
                     <div className="hidden sm:flex items-center gap-4 border-r border-[#e6e3df] pr-6">
-                        <div className="relative">
-                            <button
-                                onClick={() => setShowNotifications(!showNotifications)}
-                                className="text-warmgray hover:text-charcoal transition-all relative p-2 hover:bg-ivory rounded-full group"
-                                title="Notifications"
-                            >
-                                <Bell size={20} strokeWidth={1.5} />
-                                {hasUnread && <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-mutedbrown rounded-full border border-white animate-pulse"></span>}
-                            </button>
 
-                            {showNotifications && (
-                                <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-xl border border-ivory p-4 animate-in fade-in slide-in-from-top-2 duration-200 z-50">
-                                    <div className="flex justify-between items-center mb-3">
-                                        <h4 className="text-xs font-bold uppercase tracking-widest text-charcoal">Notifications</h4>
-                                        <button onClick={() => setShowNotifications(false)} className="text-warmgray hover:text-charcoal"><X size={14} /></button>
-                                    </div>
-                                    <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
-                                        {notifications.map(n => (
-                                            <div key={n._id} className={`flex gap-3 items-start p-3 border-b border-ivory last:border-0 rounded-lg ${n.isRead ? '' : 'bg-ivory/30'}`}>
-                                                <div className={`w-2 h-2 mt-1.5 rounded-full shrink-0 ${n.type === 'new' ? 'bg-blue-500' : n.type === 'alert' ? 'bg-amber-500' : 'bg-green-500'}`}></div>
-                                                <div>
-                                                    <p className={`text-xs ${n.isRead ? 'text-charcoal font-medium' : 'text-charcoal font-bold'} leading-tight`}>{n.text}</p>
-                                                    <p className="text-[10px] text-warmgray mt-1">{new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                        {notifications.length === 0 && <p className="text-xs text-warmgray italic">No notifications yet.</p>}
-                                    </div>
-                                    <button
-                                        onClick={() => { setShowNotifications(false); navigate('/activity'); }}
-                                        className="w-full mt-4 text-[10px] text-mutedbrown font-bold uppercase tracking-widest hover:text-charcoal transition-colors border-t border-ivory pt-3"
-                                    >
-                                        View All Activity
-                                    </button>
-                                </div>
-                            )}
-                        </div>
                         <button
                             onClick={() => window.open('https://www.instagram.com/teamalpha_crew/', '_blank')}
                             className="text-warmgray hover:text-charcoal transition-all p-2 hover:bg-ivory rounded-full"
