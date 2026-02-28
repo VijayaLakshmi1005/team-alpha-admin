@@ -40,7 +40,7 @@ export default function PhotographerProfile({ photographer, onClose, onUpdate })
     };
 
     const sendWhatsApp = (work) => {
-        const text = `Hello ${photographer.name}, reminder for ${work.eventType} (${work.name}) on ${format(new Date(work.eventDate), 'PPP')} at ${work.eventTime || 'TBD'} in ${work.eventLocation || 'Location TBD'}.`;
+        const text = `Hello ${photographer.name}, reminder for ${work.eventType} (${work.name}) on ${safeFormat(work.eventDate)} at ${work.eventTime || 'TBD'} in ${work.eventLocation || 'Location TBD'}.`;
         const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
         window.open(url, '_blank');
     };
@@ -61,6 +61,12 @@ export default function PhotographerProfile({ photographer, onClose, onUpdate })
         } catch (e) { toast.error("Failed to remove assignment"); }
     };
 
+    const safeFormat = (dateStr) => {
+        if (!dateStr) return "Date TBD";
+        const d = new Date(dateStr);
+        return isNaN(d) ? "Date TBD" : format(d, 'PPP');
+    };
+
     return (
         <div className="fixed inset-0 bg-charcoal/60 backdrop-blur-md z-60 flex items-center justify-center p-4">
             <div className="bg-white rounded-4xl w-full max-w-2xl h-[85vh] flex flex-col shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden border border-ivory">
@@ -75,7 +81,9 @@ export default function PhotographerProfile({ photographer, onClose, onUpdate })
                             </div>
                             <div>
                                 <h2 className="font-serif text-3xl">{formData.name}</h2>
-                                <p className="text-white/60 text-xs uppercase tracking-[0.2em] font-bold mt-1">{formData.specialty} Photographer</p>
+                                <p className="text-white/60 text-xs uppercase tracking-[0.2em] font-bold mt-1">
+                                    {(formData.specialty || '').toUpperCase().includes('PHOTOGRAPHER') ? formData.specialty : `${formData.specialty || ''} Photographer`}
+                                </p>
                                 <div className="flex gap-2 mt-4">
                                     <button
                                         onClick={() => setActiveTab('schedule')}
@@ -99,7 +107,7 @@ export default function PhotographerProfile({ photographer, onClose, onUpdate })
                 </div>
 
                 {/* Content Area */}
-                <div className="flex-1 bg-gray-50/50 -mt-12 rounded-t-4xl relative z-20 overflow-hidden flex flex-col">
+                <div className="flex-1 bg-gray-50 -mt-8 rounded-t-4xl relative z-20 overflow-hidden flex flex-col shadow-[0_-8px_30px_rgba(0,0,0,0.12)]">
                     <div className="flex-1 overflow-y-auto custom-scrollbar p-8">
 
                         {activeTab === 'schedule' && (
@@ -141,7 +149,7 @@ export default function PhotographerProfile({ photographer, onClose, onUpdate })
                                                 <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
                                                     <div className="flex items-center gap-2 bg-gray-50 p-2 rounded-lg">
                                                         <Calendar size={14} className="text-mutedbrown" />
-                                                        <span>{format(new Date(work.eventDate), 'PPP')}</span>
+                                                        <span>{safeFormat(work.eventDate)}</span>
                                                     </div>
                                                     <div className="flex items-center gap-2 bg-gray-50 p-2 rounded-lg">
                                                         <Clock size={14} className="text-mutedbrown" />
@@ -171,7 +179,7 @@ export default function PhotographerProfile({ photographer, onClose, onUpdate })
                                             <div key={work._id} className="bg-white/60 p-4 rounded-xl border border-gray-100 flex justify-between items-center opacity-70 hover:opacity-100 transition-all">
                                                 <div>
                                                     <h4 className="font-semibold text-charcoal">{work.name}</h4>
-                                                    <p className="text-xs text-gray-500">{format(new Date(work.eventDate), 'PPP')}</p>
+                                                    <p className="text-xs text-gray-500">{safeFormat(work.eventDate)}</p>
                                                 </div>
                                                 <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-1 rounded-full font-bold uppercase">{work.eventType}</span>
                                             </div>

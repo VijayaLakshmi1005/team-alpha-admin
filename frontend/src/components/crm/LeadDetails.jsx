@@ -138,10 +138,30 @@ export default function LeadDetails({ lead: initialLead, onClose, onGenerateInvo
             <div>
               <h2 className="font-serif text-2xl md:text-3xl text-charcoal">{lead.name}</h2>
               <div className="flex items-center gap-3 mt-1">
-                <span className={`text-[9px] uppercase tracking-widest px-2.5 py-1 rounded-full font-bold ${lead.status === 'New' ? 'bg-blue-50 text-blue-600' : 'bg-green-50 text-green-600'
-                  }`}>
-                  {lead.status}
-                </span>
+                {isEditing ? (
+                  <select
+                    value={editData.status}
+                    onChange={(e) => setEditData({ ...editData, status: e.target.value })}
+                    className="text-[9px] uppercase tracking-widest px-2.5 py-1 rounded-full font-bold bg-white border border-[#e6e3df] text-charcoal focus:outline-mutedbrown appearance-none"
+                  >
+                    <option>New</option>
+                    <option>Follow-up</option>
+                    <option>Meeting</option>
+                    <option>Negotiation</option>
+                    <option>Converted</option>
+                    <option>Archived</option>
+                  </select>
+                ) : (
+                  <span className={`text-[9px] uppercase tracking-widest px-2.5 py-1 rounded-full font-bold ${lead.status === 'New' ? 'bg-blue-50 text-blue-600' :
+                      lead.status === 'Follow-up' ? 'bg-amber-50 text-amber-600' :
+                        lead.status === 'Meeting' ? 'bg-purple-50 text-purple-600' :
+                          lead.status === 'Negotiation' ? 'bg-orange-50 text-orange-600' :
+                            lead.status === 'Converted' ? 'bg-green-50 text-green-600' :
+                              'bg-gray-100 text-gray-600'
+                    }`}>
+                    {lead.status}
+                  </span>
+                )}
                 <span className="text-[9px] text-warmgray uppercase tracking-widest font-bold opacity-60">
                   ID: #{lead._id ? lead._id.slice(-6).toUpperCase() : 'NEW'}
                 </span>
@@ -280,6 +300,25 @@ export default function LeadDetails({ lead: initialLead, onClose, onGenerateInvo
                   <span className="text-charcoal font-medium">{lead.eventTime || "Time TBD"}</span>
                 )}
               </div>
+            </div>
+
+            {/* Remarks Section */}
+            <div className="md:col-span-2 bg-ivory/30 p-5 rounded-2xl border border-ivory/50">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-mutedbrown">
+                  <Tag size={12} /> Remarks / Inquiry Status
+                </h4>
+              </div>
+              {isEditing ? (
+                <textarea
+                  className="w-full bg-white border border-ivory rounded px-3 py-3 text-sm focus:outline-mutedbrown resize-none min-h-[80px]"
+                  value={editData.remarks || ""}
+                  onChange={e => setEditData({ ...editData, remarks: e.target.value })}
+                  placeholder="Details of inquiry, client responses, what is happening..."
+                />
+              ) : (
+                <p className="text-charcoal text-sm leading-relaxed whitespace-pre-wrap">{lead.remarks || "No remarks added yet."}</p>
+              )}
             </div>
 
             <div className="md:col-span-2 bg-ivory/30 p-5 rounded-2xl border border-ivory/50">

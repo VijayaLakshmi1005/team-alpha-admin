@@ -6,7 +6,7 @@ import CRM from "./pages/CRM";
 import SmartGallery from "./pages/SmartGallery";
 import Finance from "./pages/Finance";
 import CalendarPage from "./pages/Calendar"; // Named CalendarPage to avoid conflict with potential lib
-
+import Notifications from "./pages/Notifications";
 export default function App() {
   return (
     <BrowserRouter>
@@ -31,6 +31,7 @@ export default function App() {
           <Route path="gallery" element={<SmartGallery />} />
           <Route path="finance" element={<Finance />} />
           <Route path="calendar" element={<CalendarPage />} />
+          <Route path="activity" element={<Notifications />} />
         </Route>
       </Routes>
     </BrowserRouter>

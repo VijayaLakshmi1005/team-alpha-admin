@@ -3,6 +3,7 @@ import axios from "axios";
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, isToday, parseISO, startOfDay } from "date-fns";
 import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, Clock, MapPin, Filter, Users } from "lucide-react";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 import EventForm from "../components/calendar/EventForm";
 
 export default function Calendar() {
@@ -111,21 +112,26 @@ export default function Calendar() {
         setIsModalOpen(true);
     };
 
+    const navigate = useNavigate();
+
     return (
-        <div className="space-y-8 md:space-y-12 text-charcoal px-4 md:px-0 animate-in fade-in duration-700">
+        <div className="space-y-8 md:space-y-12 text-charcoal px-4 md:px-0 pb-20 animate-in fade-in duration-700">
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mt-4">
                 <div>
                     <h1 className="font-serif text-3xl md:text-5xl">Studio Itinerary</h1>
                     <p className="text-[10px] md:text-xs text-warmgray mt-3 font-bold uppercase tracking-[0.4em]">Coordinating luxury moments across the globe.</p>
                 </div>
-                <div className="flex gap-4 w-full md:w-auto">
-                    <button className="flex-1 md:flex-none flex items-center justify-center gap-3 border border-ivory bg-white px-6 py-4 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-ivory transition-all shadow-sm">
+                <div className="flex gap-4 w-full md:w-auto relative z-20">
+                    <button
+                        onClick={() => navigate('/crm')}
+                        className="flex-1 md:flex-none flex items-center justify-center gap-3 border border-ivory/50 bg-white px-8 py-4 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-gray-50 hover:shadow-md transition-all shadow-sm"
+                    >
                         <Users size={18} /> Teams
                     </button>
                     <button
                         onClick={() => { setSelectedEvent(null); setIsModalOpen(true); }}
-                        className="flex-1 md:flex-none flex items-center justify-center gap-3 bg-charcoal text-white px-6 py-4 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-mutedbrown transition-all shadow-xl"
+                        className="flex-1 md:flex-none flex items-center justify-center gap-3 bg-charcoal text-white px-8 py-4 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-mutedbrown transition-all shadow-xl hover:shadow-2xl"
                     >
                         <Plus size={18} /> Event
                     </button>
@@ -268,7 +274,7 @@ export default function Calendar() {
 
                         <button
                             onClick={() => { setFilter("All"); jumpToToday(); }}
-                            className="w-full mt-12 py-5 border border-ivory rounded-2xl text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-ivory transition-all shadow-sm"
+                            className="w-full mt-12 py-5 bg-white border border-ivory rounded-2xl text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-ivory hover:shadow-md transition-all shadow-sm relative z-20"
                         >
                             View Full Studio Schedule
                         </button>
@@ -293,7 +299,7 @@ export default function Calendar() {
                         </div>
                         <button
                             onClick={handleTeamSync}
-                            className="w-full py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-white/10 transition-all"
+                            className="w-full py-5 bg-white/10 border border-white/20 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-white/20 transition-all relative z-20 shadow-md"
                         >
                             Assign Lead Team
                         </button>

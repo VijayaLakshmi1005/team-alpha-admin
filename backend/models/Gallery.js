@@ -2,8 +2,10 @@ import mongoose from 'mongoose';
 
 const gallerySchema = new mongoose.Schema({
     albumName: { type: String, required: true },
+    clientFolder: { type: String, required: true, default: "Default Client" },
     url: { type: String, required: true },
-    type: { type: String, enum: ['image', 'video'], default: 'image' },
+    link: { type: String }, // Used specifically for Drive links
+    type: { type: String, enum: ['image', 'video', 'drive'], default: 'image' },
     category: { type: String, enum: ['Engagement', 'Wedding', 'Pre-wedding', 'Haldi', 'Reception', 'Other'], default: 'Wedding' },
     subCategory: { type: String }, // e.g., 'Candid', 'Traditional', 'Drone'
     tags: [{ type: String }],
@@ -11,7 +13,6 @@ const gallerySchema = new mongoose.Schema({
     height: { type: Number },
     isFavorite: { type: Boolean, default: false },
     isSelected: { type: Boolean, default: false },
-    watermarkText: { type: String, default: 'Team Alpha Photography' },
     uploadedAt: { type: Date, default: Date.now }
 }, { timestamps: true });
 

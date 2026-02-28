@@ -6,9 +6,10 @@ const leadSchema = new mongoose.Schema({
     phone: String,
     status: {
         type: String,
-        enum: ['New', 'Follow-up', 'Converted', 'Archived'],
+        enum: ['New', 'Follow-up', 'Meeting', 'Negotiation', 'Converted', 'Archived'],
         default: 'New'
     },
+    remarks: String,
     eventType: String,
     eventDate: Date,
     eventTime: String, // e.g. "10:00 AM"

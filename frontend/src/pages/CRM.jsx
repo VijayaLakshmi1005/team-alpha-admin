@@ -144,6 +144,8 @@ export default function CRM() {
                     <option value="All">All Status</option>
                     <option value="New">New</option>
                     <option value="Follow-up">Follow-up</option>
+                    <option value="Meeting">Meeting</option>
+                    <option value="Negotiation">Negotiation</option>
                     <option value="Converted">Converted</option>
                   </select>
                   <Filter size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-warmgray" />
@@ -182,7 +184,10 @@ export default function CRM() {
                             <div className="md:hidden mt-2">
                               <span className={`px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-widest ${lead.status === 'New' ? 'bg-blue-50 text-blue-600' :
                                 lead.status === 'Follow-up' ? 'bg-amber-50 text-amber-600' :
-                                  'bg-green-50 text-green-600'
+                                  lead.status === 'Meeting' ? 'bg-purple-50 text-purple-600' :
+                                    lead.status === 'Negotiation' ? 'bg-orange-50 text-orange-600' :
+                                      lead.status === 'Converted' ? 'bg-green-50 text-green-600' :
+                                        'bg-gray-100 text-gray-600'
                                 }`}>
                                 {lead.status}
                               </span>
@@ -193,7 +198,10 @@ export default function CRM() {
                       <td className="px-8 py-6 hidden md:table-cell">
                         <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${lead.status === 'New' ? 'bg-blue-50 text-blue-600' :
                           lead.status === 'Follow-up' ? 'bg-amber-50 text-amber-600' :
-                            'bg-green-50 text-green-600'
+                            lead.status === 'Meeting' ? 'bg-purple-50 text-purple-600' :
+                              lead.status === 'Negotiation' ? 'bg-orange-50 text-orange-600' :
+                                lead.status === 'Converted' ? 'bg-green-50 text-green-600' :
+                                  'bg-gray-100 text-gray-600'
                           }`}>
                           {lead.status}
                         </span>
@@ -243,7 +251,7 @@ export default function CRM() {
         )}
 
         {activeTab === 'invoices' && (
-          <div className="max-w-4xl mx-auto px-2">
+          <div className="w-full">
             <InvoiceForm onClose={() => setActiveTab('leads')} />
           </div>
         )}

@@ -5,10 +5,8 @@ import { sendReminderEmail } from './emailService.js';
 
 export const startScheduler = () => {
     // Schedule task to run every day at 9:00 AM
-    // For testing/demo purposes, you can change this to '* * * * *' to run every minute
-    // Run every minute for testing (as requested)
-    cron.schedule('* * * * *', async () => {
-        console.log('[SCHEDULER] Running daily event reminder check...');
+    cron.schedule('0 9 * * *', async () => {
+        console.log('[SCHEDULER] Running daily event reminder check (9:00 AM)...');
 
         try {
             const today = new Date();

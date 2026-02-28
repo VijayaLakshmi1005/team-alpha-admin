@@ -17,6 +17,8 @@ export default function Dashboard() {
   const [isSystemOnline, setIsSystemOnline] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchData = async () => {
       try {
         const [statsRes, activityRes, eventsRes] = await Promise.all([
@@ -25,16 +27,27 @@ export default function Dashboard() {
           axios.get("http://localhost:5000/api/dashboard/upcoming-events")
         ]);
 
-        setStats(statsRes.data);
-        setRecentActivity(activityRes.data);
-        setUpcomingEvents(eventsRes.data);
-        setIsSystemOnline(true);
+        if (isMounted) {
+          setStats(statsRes.data);
+          setRecentActivity(activityRes.data);
+          setUpcomingEvents(eventsRes.data);
+          setIsSystemOnline(true);
+        }
       } catch (err) {
         console.error("Failed to fetch dashboard data", err);
-        setIsSystemOnline(false);
+        if (isMounted) setIsSystemOnline(false);
       }
     };
-    fetchData();
+
+    fetchData(); // Initial immediate load
+
+    // Real-time efficient background polling
+    const intervalId = setInterval(fetchData, 5000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(intervalId);
+    };
   }, []);
 
   return (

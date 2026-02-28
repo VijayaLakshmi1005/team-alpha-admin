@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { Bell, Search, User, Globe, Menu, MessageCircle, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Bell, Search, User, Instagram, Menu, MessageCircle, X } from "lucide-react";
 import toast from "react-hot-toast";
+import axios from "axios";
 import AdminProfileModal from "./AdminProfileModal";
 
 export default function Topbar({ onMenuClick }) {
@@ -18,11 +19,23 @@ export default function Topbar({ onMenuClick }) {
 
 
     /* ... inside Topbar ... */
-    const notifications = [
-        { id: 1, text: "New Lead: Amit Sharma inquired about Wedding", time: "2m ago", type: "new" },
-        { id: 2, text: "Task Due: Edit Pre-wedding shoot for Priya", time: "1h ago", type: "alert" },
-        { id: 3, text: "Payment Received: Rs. 50,000 from Rahul", time: "3h ago", type: "success" }
-    ];
+    const [notifications, setNotifications] = useState([]);
+    const hasUnread = notifications.some(n => !n.isRead);
+
+    useEffect(() => {
+        fetchNotifications();
+        const interval = setInterval(fetchNotifications, 10000);
+        return () => clearInterval(interval);
+    }, []);
+
+    const fetchNotifications = async () => {
+        try {
+            const res = await axios.get("http://localhost:5000/api/notifications");
+            setNotifications(res.data.slice(0, 5)); // limit dropdown to recent 5
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
     const handleSearch = (e) => {
         if (e.key === 'Enter' && query.trim()) {
@@ -62,7 +75,7 @@ export default function Topbar({ onMenuClick }) {
                                 title="Notifications"
                             >
                                 <Bell size={20} strokeWidth={1.5} />
-                                <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-mutedbrown rounded-full border border-white animate-pulse"></span>
+                                {hasUnread && <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-mutedbrown rounded-full border border-white animate-pulse"></span>}
                             </button>
 
                             {showNotifications && (
@@ -71,18 +84,22 @@ export default function Topbar({ onMenuClick }) {
                                         <h4 className="text-xs font-bold uppercase tracking-widest text-charcoal">Notifications</h4>
                                         <button onClick={() => setShowNotifications(false)} className="text-warmgray hover:text-charcoal"><X size={14} /></button>
                                     </div>
-                                    <div className="space-y-3">
+                                    <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
                                         {notifications.map(n => (
-                                            <div key={n.id} className="flex gap-3 items-start pb-3 border-b border-ivory last:border-0 last:pb-0">
-                                                <div className={`w-2 h-2 mt-1.5 rounded-full ${n.type === 'new' ? 'bg-blue-500' : n.type === 'alert' ? 'bg-amber-500' : 'bg-green-500'}`}></div>
+                                            <div key={n._id} className={`flex gap-3 items-start p-3 border-b border-ivory last:border-0 rounded-lg ${n.isRead ? '' : 'bg-ivory/30'}`}>
+                                                <div className={`w-2 h-2 mt-1.5 rounded-full shrink-0 ${n.type === 'new' ? 'bg-blue-500' : n.type === 'alert' ? 'bg-amber-500' : 'bg-green-500'}`}></div>
                                                 <div>
-                                                    <p className="text-xs font-medium text-charcoal leading-tight">{n.text}</p>
-                                                    <p className="text-[10px] text-warmgray mt-1">{n.time}</p>
+                                                    <p className={`text-xs ${n.isRead ? 'text-charcoal font-medium' : 'text-charcoal font-bold'} leading-tight`}>{n.text}</p>
+                                                    <p className="text-[10px] text-warmgray mt-1">{new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                                                 </div>
                                             </div>
                                         ))}
+                                        {notifications.length === 0 && <p className="text-xs text-warmgray italic">No notifications yet.</p>}
                                     </div>
-                                    <button className="w-full mt-4 text-[10px] text-mutedbrown font-bold uppercase tracking-widest hover:text-charcoal transition-colors">
+                                    <button
+                                        onClick={() => { setShowNotifications(false); navigate('/activity'); }}
+                                        className="w-full mt-4 text-[10px] text-mutedbrown font-bold uppercase tracking-widest hover:text-charcoal transition-colors border-t border-ivory pt-3"
+                                    >
                                         View All Activity
                                     </button>
                                 </div>
@@ -93,7 +110,7 @@ export default function Topbar({ onMenuClick }) {
                             className="text-warmgray hover:text-charcoal transition-all p-2 hover:bg-ivory rounded-full"
                             title="Visit Team Alpha Instagram"
                         >
-                            <Globe size={20} strokeWidth={1.5} />
+                            <Instagram size={20} strokeWidth={1.5} />
                         </button>
                         <button
                             onClick={() => window.open('https://wa.me/919110603953', '_blank')}

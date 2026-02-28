@@ -2,6 +2,11 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Import Models for global access if needed
 import './models/Lead.js';
@@ -18,6 +23,7 @@ import calendarRoutes from './routes/calendarRoutes.js';
 import photographerRoutes from './routes/photographerRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
 import invoiceRoutes from './routes/invoiceRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
 import { startScheduler } from './utils/notificationScheduler.js';
 
 dotenv.config();
@@ -25,6 +31,9 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// Serve uploaded files statically
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/teamalpha";
 
@@ -49,6 +58,7 @@ app.use('/api/photographers', photographerRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
