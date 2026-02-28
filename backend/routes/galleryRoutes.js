@@ -3,23 +3,23 @@ import Gallery from '../models/Gallery.js';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { v2 as cloudinary } from 'cloudinary';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
 
-// Ensure uploads directory exists
-const uploadDir = 'uploads';
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'dfbr4ayuf',
+    api_key: process.env.CLOUDINARY_API_KEY || '124874674819971',
+    api_secret: process.env.CLOUDINARY_API_SECRET || 'nqS2gUSlAOl3hDZy4wjwTqNQpIw'
+});
 
 const router = express.Router();
 
-// Configure Multer for local storage
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/');
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'team-alpha-gallery',
+        allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'gif', 'mp4'],
     },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
 });
 
 const upload = multer({ storage });
@@ -28,7 +28,8 @@ router.post('/upload', upload.single('file'), (req, res) => {
     if (!req.file) {
         return res.status(400).json({ message: 'No file uploaded' });
     }
-    const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+    // multer-storage-cloudinary attaches 'path' as the Cloudinary URL
+    const fileUrl = req.file.path;
     res.json({ url: fileUrl });
 });
 
