@@ -24,7 +24,7 @@ export default function LeadDetails({ lead: initialLead, onClose, onGenerateInvo
 
   const handleUpdateNotes = async (notes) => {
     try {
-      const response = await axios.patch(`http://localhost:5000/api/leads/${lead._id}`, { notes });
+      const response = await axios.patch(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/leads/${lead._id}`, { notes });
       setLead(response.data);
       toast.success("Notes updated");
     } catch (e) { toast.error("Failed to save notes"); }
@@ -33,7 +33,7 @@ export default function LeadDetails({ lead: initialLead, onClose, onGenerateInvo
   const handleSaveLead = async () => {
     setSaving(true);
     try {
-      const response = await axios.patch(`http://localhost:5000/api/leads/${lead._id}`, editData);
+      const response = await axios.patch(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/leads/${lead._id}`, editData);
       setLead(response.data);
       setIsEditing(false);
       toast.success("Lead details updated!");
@@ -51,7 +51,7 @@ export default function LeadDetails({ lead: initialLead, onClose, onGenerateInvo
 
   const fetchPhotographers = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/photographers");
+      const response = await axios.get(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/photographers`);
       setAllPhotographers(response.data);
     } catch (err) {
       console.error("Failed to fetch photographers", err);
@@ -63,7 +63,7 @@ export default function LeadDetails({ lead: initialLead, onClose, onGenerateInvo
       const newTeam = [...teamMembers, selectedPhotographer];
       setSaving(true);
       try {
-        const response = await axios.patch(`http://localhost:5000/api/leads/${lead._id}`, {
+        const response = await axios.patch(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/leads/${lead._id}`, {
           people: newTeam
         });
         setTeamMembers(response.data.people);
@@ -85,7 +85,7 @@ export default function LeadDetails({ lead: initialLead, onClose, onGenerateInvo
     const newTeam = teamMembers.filter(m => m !== member);
     setSaving(true);
     try {
-      const response = await axios.patch(`http://localhost:5000/api/leads/${lead._id}`, {
+      const response = await axios.patch(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/leads/${lead._id}`, {
         people: newTeam
       });
       setTeamMembers(response.data.people);
@@ -102,7 +102,7 @@ export default function LeadDetails({ lead: initialLead, onClose, onGenerateInvo
   const sendReminder = async (member) => {
     // e.stopPropagation() handled in onClick
     try {
-      await axios.post(`http://localhost:5000/api/leads/${lead._id}/remind/${member}`);
+      await axios.post(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/leads/${lead._id}/remind/${member}`);
       toast.success(`Reminder sent to ${member}!`);
     } catch (err) {
       console.error("Failed to send reminder", err);
@@ -117,7 +117,7 @@ export default function LeadDetails({ lead: initialLead, onClose, onGenerateInvo
       setSelectedPhotographerProfile(photographer);
     } else {
       try {
-        const res = await axios.get("http://localhost:5000/api/photographers");
+        const res = await axios.get(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/photographers`);
         const found = res.data.find(p => p.name === member);
         if (found) setSelectedPhotographerProfile(found);
       } catch (e) { console.error(e); }

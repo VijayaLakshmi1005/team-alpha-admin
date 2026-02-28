@@ -22,7 +22,7 @@ export default function Calendar() {
     const fetchEvents = async () => {
         setLoading(true);
         try {
-            const res = await axios.get('http://localhost:5000/api/calendar');
+            const res = await axios.get(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/calendar`);
             setEvents(res.data);
         } catch (error) {
             console.error("Failed to fetch events", error);
@@ -36,12 +36,12 @@ export default function Calendar() {
         try {
             if (selectedEvent) {
                 // Update
-                const res = await axios.patch(`http://localhost:5000/api/calendar/${selectedEvent._id}`, formData);
+                const res = await axios.patch(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/calendar/${selectedEvent._id}`, formData);
                 setEvents(events.map(e => e._id === res.data._id ? res.data : e));
                 toast.success("Event updated");
             } else {
                 // Create
-                const res = await axios.post('http://localhost:5000/api/calendar', formData);
+                const res = await axios.post(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/calendar`, formData);
                 setEvents([...events, res.data]);
                 toast.success("Event scheduled");
             }
@@ -56,7 +56,7 @@ export default function Calendar() {
     const handleDeleteEvent = async (id) => {
         if (!window.confirm("Are you sure you want to remove this event?")) return;
         try {
-            await axios.delete(`http://localhost:5000/api/calendar/${id}`);
+            await axios.delete(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/calendar/${id}`);
             setEvents(events.filter(e => e._id !== id));
             toast.success("Event removed");
             setIsModalOpen(false);

@@ -17,7 +17,7 @@ export default function PhotographerProfile({ photographer, onClose, onUpdate })
 
     const fetchWorks = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/photographers/${encodeURIComponent(photographer.name)}/works`);
+            const response = await axios.get(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/photographers/${encodeURIComponent(photographer.name)}/works`);
             setWorks(response.data);
         } catch (err) {
             console.error("Failed to fetch works", err);
@@ -27,7 +27,7 @@ export default function PhotographerProfile({ photographer, onClose, onUpdate })
     const handleSaveProfile = async () => {
         setLoading(true);
         try {
-            const response = await axios.patch(`http://localhost:5000/api/photographers/${photographer._id}`, formData);
+            const response = await axios.patch(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/photographers/${photographer._id}`, formData);
             if (onUpdate) onUpdate(response.data);
             setIsEditing(false);
             toast.success("Profile updated successfully!");
@@ -55,7 +55,7 @@ export default function PhotographerProfile({ photographer, onClose, onUpdate })
         if (!window.confirm(`Remove ${photographer.name} from this event?`)) return;
         try {
             const newPeople = workPeople ? workPeople.filter(p => p !== photographer.name) : [];
-            await axios.patch(`http://localhost:5000/api/leads/${workId}`, { people: newPeople });
+            await axios.patch(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/leads/${workId}`, { people: newPeople });
             fetchWorks();
             toast.success("Assignment removed");
         } catch (e) { toast.error("Failed to remove assignment"); }
@@ -134,7 +134,7 @@ export default function PhotographerProfile({ photographer, onClose, onUpdate })
                                                                 if (!window.confirm(`Remove ${photographer.name} from this event?`)) return;
                                                                 try {
                                                                     const newPeople = work.people ? work.people.filter(p => p !== photographer.name) : [];
-                                                                    await axios.patch(`http://localhost:5000/api/leads/${work._id}`, { people: newPeople });
+                                                                    await axios.patch(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/leads/${work._id}`, { people: newPeople });
                                                                     fetchWorks(); // Refresh list
                                                                     toast.success("Assignment removed");
                                                                 } catch (e) { toast.error("Failed to remove assignment"); }

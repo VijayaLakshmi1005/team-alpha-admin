@@ -22,7 +22,7 @@ export default function LeadForm({ onClose, onLeadAdded }) {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:5000/api/leads", formData);
+      const response = await axios.post(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/leads`, formData);
       onLeadAdded(response.data);
       toast.success("New luxury inquiry added successfully!");
       onClose();

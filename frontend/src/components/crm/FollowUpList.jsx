@@ -13,7 +13,7 @@ export default function FollowUpList({ lead, onUpdate }) {
 
     try {
       // Update Lead Status to Follow-up and set date
-      const response = await axios.patch(`http://localhost:5000/api/leads/${lead._id}`, {
+      const response = await axios.patch(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/leads/${lead._id}`, {
         status: 'Follow-up',
         followUpDate: nextDate
       });
@@ -33,7 +33,7 @@ export default function FollowUpList({ lead, onUpdate }) {
 
     setLoading(true);
     try {
-      const response = await axios.patch(`http://localhost:5000/api/leads/${lead._id}`, {
+      const response = await axios.patch(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/leads/${lead._id}`, {
         followUpDate: null,
         // Optionally keep status or set to specific status? Let's keep status.
       });

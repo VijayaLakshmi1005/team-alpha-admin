@@ -46,7 +46,7 @@ export default function SmartGallery() {
 
   const fetchGallery = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/gallery");
+      const response = await axios.get(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/gallery`);
       if (response.data && response.data.length > 0) {
         setGalleryItems(response.data);
         const favs = new Set(response.data.filter(item => item.isFavorite).map(item => item._id));
@@ -69,7 +69,7 @@ export default function SmartGallery() {
     else newFavs.add(id);
     setFavorites(newFavs);
     try {
-      await axios.patch(`http://localhost:5000/api/gallery/${id}/favorite`);
+      await axios.patch(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/gallery/${id}/favorite`);
     } catch (err) { /* ignore */ }
   };
 
@@ -89,7 +89,7 @@ export default function SmartGallery() {
     if (!window.confirm("Are you sure you want to permanently delete this asset?")) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/gallery/${id}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/gallery/${id}`);
       setGalleryItems(prev => prev.filter(item => item._id !== id));
       if (lightboxItem?._id === id) setLightboxItem(null);
       toast.success("Asset deleted successfully!");
@@ -118,7 +118,7 @@ export default function SmartGallery() {
     try {
       const fileData = new FormData();
       fileData.append("file", uploadFile);
-      const res = await axios.post("http://localhost:5000/api/gallery/upload", fileData, {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/gallery/upload`, fileData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       finalUrl = res.data.url;
@@ -140,7 +140,7 @@ export default function SmartGallery() {
     };
 
     try {
-      const res = await axios.post("http://localhost:5000/api/gallery", payload);
+      const res = await axios.post(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/gallery`, payload);
       setGalleryItems([res.data, ...galleryItems]);
       setShowUploadForm(false);
       setUploadFile(null);
