@@ -22,7 +22,7 @@ export default function TaskList({ leadId, tasks: initialTasks = [] }) {
 
   const fetchGlobalTasks = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/tasks`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL || ""}/api/tasks`);
       setTasks(response.data);
     } catch (err) {
       console.error("Failed to fetch tasks", err);
@@ -39,13 +39,13 @@ export default function TaskList({ leadId, tasks: initialTasks = [] }) {
     try {
       let response;
       if (leadId) {
-        response = await axios.post(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/leads/${leadId}/tasks`, {
+        response = await axios.post(`${import.meta.env.VITE_API_URL || ""}/api/leads/${leadId}/tasks`, {
           title: newTaskTitle,
           status: "pending"
         });
       } else {
         // Global task
-        response = await axios.post(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/tasks`, {
+        response = await axios.post(`${import.meta.env.VITE_API_URL || ""}/api/tasks`, {
           title: newTaskTitle,
           status: "pending"
         });
@@ -62,7 +62,7 @@ export default function TaskList({ leadId, tasks: initialTasks = [] }) {
 
   const toggleTask = async (taskId) => {
     try {
-      const response = await axios.patch(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/tasks/${taskId}`);
+      const response = await axios.patch(`${import.meta.env.VITE_API_URL || ""}/api/tasks/${taskId}`);
       setTasks(tasks.map(t => t._id === taskId ? response.data : t));
     } catch (err) {
       console.error("Failed to toggle task", err);
@@ -78,7 +78,7 @@ export default function TaskList({ leadId, tasks: initialTasks = [] }) {
   const saveEdit = async (taskId) => {
     if (!editValue.trim()) return;
     try {
-      const response = await axios.patch(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/tasks/${taskId}`, {
+      const response = await axios.patch(`${import.meta.env.VITE_API_URL || ""}/api/tasks/${taskId}`, {
         title: editValue
       });
       setTasks(tasks.map(t => t._id === taskId ? { ...t, title: editValue } : t));
@@ -96,7 +96,7 @@ export default function TaskList({ leadId, tasks: initialTasks = [] }) {
 
   const deleteTask = async (taskId) => {
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/tasks/${taskId}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL || ""}/api/tasks/${taskId}`);
       setTasks(tasks.filter(t => t._id !== taskId));
       toast.success("Task cleared.");
     } catch (err) {

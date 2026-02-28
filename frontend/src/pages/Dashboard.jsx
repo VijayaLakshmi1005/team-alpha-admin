@@ -22,9 +22,9 @@ export default function Dashboard() {
     const fetchData = async () => {
       try {
         const [statsRes, activityRes, eventsRes] = await Promise.all([
-          axios.get(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/dashboard/stats`),
-          axios.get(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/dashboard/recent-activity`),
-          axios.get(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/dashboard/upcoming-events`)
+          axios.get(`${import.meta.env.VITE_API_URL || ""}/api/dashboard/stats`),
+          axios.get(`${import.meta.env.VITE_API_URL || ""}/api/dashboard/recent-activity`),
+          axios.get(`${import.meta.env.VITE_API_URL || ""}/api/dashboard/upcoming-events`)
         ]);
 
         if (isMounted) {

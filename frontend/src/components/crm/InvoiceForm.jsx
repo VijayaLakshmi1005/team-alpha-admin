@@ -96,7 +96,7 @@ export default function InvoiceForm({ onClose, initialClientName = "" }) {
     }
     setLoading(true);
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/invoices`, {
+      await axios.post(`${import.meta.env.VITE_API_URL || ""}/api/invoices`, {
         clientName,
         invoiceDate,
         events,

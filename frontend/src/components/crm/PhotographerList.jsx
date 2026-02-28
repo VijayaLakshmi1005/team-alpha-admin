@@ -17,7 +17,7 @@ export default function PhotographerList() {
 
     const fetchPhotographers = async () => {
         try {
-            const response = await axios.get(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/photographers`);
+            const response = await axios.get(`${import.meta.env.VITE_API_URL || ""}/api/photographers`);
             setPhotographers(response.data);
             setLoading(false);
         } catch (err) {
@@ -30,7 +30,7 @@ export default function PhotographerList() {
         if (e) e.stopPropagation();
         if (window.confirm("Delete this photographer?")) {
             try {
-                await axios.delete(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/photographers/${id}`);
+                await axios.delete(`${import.meta.env.VITE_API_URL || ""}/api/photographers/${id}`);
                 setPhotographers(photographers.filter(p => p._id !== id));
                 toast.success("Photographer removed from studio team.");
             } catch (err) {

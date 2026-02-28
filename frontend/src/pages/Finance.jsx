@@ -20,9 +20,9 @@ export default function Finance() {
     const fetchData = async () => {
         try {
             const [overviewRes, txRes, allocRes] = await Promise.all([
-                axios.get(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/finance/overview`),
-                axios.get(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/finance/transactions`),
-                axios.get(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/finance/allocation`)
+                axios.get(`${import.meta.env.VITE_API_URL || ""}/api/finance/overview`),
+                axios.get(`${import.meta.env.VITE_API_URL || ""}/api/finance/transactions`),
+                axios.get(`${import.meta.env.VITE_API_URL || ""}/api/finance/allocation`)
             ]);
             setStats(overviewRes.data);
             setTransactions(txRes.data);
@@ -52,10 +52,10 @@ export default function Finance() {
 
         try {
             if (type === 'income') {
-                await axios.delete(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/invoices/${id}`);
+                await axios.delete(`${import.meta.env.VITE_API_URL || ""}/api/invoices/${id}`);
                 toast.success("Invoice deleted");
             } else {
-                await axios.delete(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/finance/expense/${id}`);
+                await axios.delete(`${import.meta.env.VITE_API_URL || ""}/api/finance/expense/${id}`);
                 toast.success("Expense deleted");
             }
             fetchData();
@@ -70,7 +70,7 @@ export default function Finance() {
         try {
             if (editExpense) {
                 if (editExpense.type === 'income') {
-                    await axios.put(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/invoices/${editExpense.id}`, {
+                    await axios.put(`${import.meta.env.VITE_API_URL || ""}/api/invoices/${editExpense.id}`, {
                         clientName: editExpense.title,
                         total: editExpense.amount,
                         invoiceDate: editExpense.date,
@@ -78,11 +78,11 @@ export default function Finance() {
                     });
                     toast.success("Transaction updated");
                 } else {
-                    await axios.put(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/finance/expense/${editExpense.id}`, editExpense);
+                    await axios.put(`${import.meta.env.VITE_API_URL || ""}/api/finance/expense/${editExpense.id}`, editExpense);
                     toast.success("Expense updated");
                 }
             } else {
-                await axios.post(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/finance/expense`, newExpense);
+                await axios.post(`${import.meta.env.VITE_API_URL || ""}/api/finance/expense`, newExpense);
                 toast.success("Expense logged successfully");
             }
             setShowExpenseModal(false);

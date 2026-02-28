@@ -41,7 +41,7 @@ export default function CRM() {
   const fetchLeads = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/leads`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL || ""}/api/leads`);
       setLeads(response.data);
       setLoading(false);
     } catch (err) {
@@ -54,7 +54,7 @@ export default function CRM() {
     e.stopPropagation();
     if (window.confirm("Are you sure you want to delete this lead?")) {
       try {
-        await axios.delete(`${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || "http://localhost:5000")}/api/leads/${id}`);
+        await axios.delete(`${import.meta.env.VITE_API_URL || ""}/api/leads/${id}`);
         setLeads(leads.filter(lead => lead._id !== id));
         toast.success("Lead archived/deleted successfully");
       } catch (err) {
