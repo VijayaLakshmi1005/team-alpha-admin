@@ -147,7 +147,7 @@ export default function ActivityLog() {
                                         className="w-10 h-10 rounded-full bg-white border border-[#e6e3df] text-red-300 hover:text-red-500 hover:border-red-200 hover:bg-red-50 hover:shadow-md flex items-center justify-center transition-all opacity-100 sm:opacity-0 group-hover:opacity-100 pr-0.5 shadow-sm"
                                         title="Delete this log"
                                     >
-                                        <Trash2 size={16} strokeWidth={2} className="translate-x-[1px]" />
+                                        <Trash2 size={16} strokeWidth={2} className="translate-x-px" />
                                     </button>
                                 </div>
                             </div>

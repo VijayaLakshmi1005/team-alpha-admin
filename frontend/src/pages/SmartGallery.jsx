@@ -1,24 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Upload, Star, ChevronDown, Image as ImageIcon, Plus, CheckCircle2, SlidersHorizontal, Grid3X3, Maximize2, Download, X, Share2, Heart, Folder, ChevronRight, FolderPlus, Trash2 } from "lucide-react";
+import { Upload, Star, ChevronDown, Image as ImageIcon, Plus, CheckCircle2, SlidersHorizontal, Grid3X3, Maximize2, Download, X, Share2, Heart, Folder, ChevronRight, FolderPlus, Trash2, Edit3, Check } from "lucide-react";
+import toast from "react-hot-toast";
 
-// Extended Mock Data for Rich Visuals
-const MOCK_GALLERY = [
-  // John & Doe Wedding
-  { _id: 'w1', clientFolder: 'John & Doe', type: 'image', category: 'Wedding', url: 'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=600', title: 'The Vows', aspect: 'tall' },
-  { _id: 'w2', clientFolder: 'John & Doe', type: 'image', category: 'Wedding', url: 'https://images.unsplash.com/photo-1511285560982-1351cdeb9821?q=80&w=600', title: 'Just Married', aspect: 'portrait' },
-  { _id: 'h1', clientFolder: 'John & Doe', type: 'image', category: 'Haldi', url: 'https://images.unsplash.com/photo-1621621667797-e06afc217fb0?q=80&w=600', title: 'Haldi Splash', aspect: 'portrait' },
-
-  // Kunal & Priya Pre-wedding
-  { _id: 'p1', clientFolder: 'Kunal & Priya', type: 'image', category: 'Pre-wedding', url: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?q=80&w=600', title: 'The Ring', aspect: 'square' },
-  { _id: 'p2', clientFolder: 'Kunal & Priya', type: 'image', category: 'Pre-wedding', url: 'https://images.unsplash.com/photo-1522673607200-1645062cd95c?q=80&w=600', title: 'Mountain Love', aspect: 'landscape' },
-  { _id: 'e1', clientFolder: 'Kunal & Priya', type: 'image', category: 'Engagement', url: 'https://images.unsplash.com/photo-1519225448526-0cb85b511856?q=80&w=600', title: 'Engagement Party', aspect: 'landscape' },
-
-  // Generic mocks mapped to Default Client
-  { _id: 'w3', clientFolder: 'Default Client', type: 'image', category: 'Wedding', url: 'https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=600', title: 'Floral Details', aspect: 'square' },
-  { _id: 'w4', clientFolder: 'Default Client', type: 'video', category: 'Wedding', url: 'https://assets.mixkit.co/videos/preview/mixkit-wedding-couple-holding-hands-sunset-1115-large.mp4', title: 'Sunset Walk', aspect: 'video' },
-  { _id: 'h2', clientFolder: 'Default Client', type: 'image', category: 'Haldi', url: 'https://images.unsplash.com/photo-1605218457332-9cb1277a6277?q=80&w=600', title: 'Yellow Hues', aspect: 'square' },
-];
 
 const CATEGORIES = ["Wedding", "Engagement", "Pre-wedding", "Haldi", "Reception", "Other"];
 
@@ -34,11 +18,18 @@ export default function SmartGallery() {
   const [activeEventFolder, setActiveEventFolder] = useState(null);
 
   const [showUploadForm, setShowUploadForm] = useState(false);
+  const [editingClient, setEditingClient] = useState(null);
+  const [newClientName, setNewClientName] = useState("");
+  const [editingEvent, setEditingEvent] = useState(null);
+  const [newEventName, setNewEventName] = useState("");
+  const [editingItemId, setEditingItemId] = useState(null);
+  const [newItemTitle, setNewItemTitle] = useState("");
 
-  // Upload Form State
+  // Upload Form State (Restored)
   const [selectedType, setSelectedType] = useState("Image"); // "Image", "Video", "Drive Link"
   const [uploadFile, setUploadFile] = useState(null);
   const [driveUrl, setDriveUrl] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     fetchGallery();
@@ -101,14 +92,18 @@ export default function SmartGallery() {
 
   const submitUpload = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
     const formData = new FormData(e.target);
     const newClientFolder = formData.get('newClientFolder');
     const clientFolderSelect = formData.get('clientFolderSelect');
-    const clientFolder = newClientFolder ? newClientFolder.trim() : (clientFolderSelect || 'Default Client');
+    const clientFolder = newClientFolder ? newClientFolder.trim() : (clientFolderSelect && clientFolderSelect !== "Select a client..." ? clientFolderSelect : 'Uncategorized');
     const category = formData.get('category') || 'Wedding';
     const generatedTitle = `${clientFolder} - ${category} Moment`;
 
-    if (!uploadFile) return toast.error("Please explicitly select a media file or a cover photo.");
+    if (!uploadFile) {
+      setSubmitting(false);
+      return toast.error("Please explicitly select a media file or a cover photo.");
+    }
 
     // type mappings
     const typeMapping = { 'Image': 'image', 'Video': 'video', 'Drive Link': 'drive' };
@@ -125,7 +120,7 @@ export default function SmartGallery() {
     } catch (err) {
       console.error("Upload error:", err);
       toast.error("Failed to upload the file to our server");
-      setLoading(false);
+      setSubmitting(false);
       return;
     }
 
@@ -149,6 +144,58 @@ export default function SmartGallery() {
     } catch (err) {
       console.error(err);
       toast.error("Failed to save gallery item.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleRenameClient = async (oldName) => {
+    if (!newClientName.trim() || newClientName === oldName) return setEditingClient(null);
+    try {
+      await axios.patch(`${import.meta.env.VITE_API_URL || ""}/api/gallery/rename-folder`, { oldName, newName: newClientName });
+      setGalleryItems(prev => prev.map(item => (item.clientFolder || 'Default Client') === oldName ? { ...item, clientFolder: newClientName } : item));
+      setEditingClient(null);
+      setNewClientName("");
+      toast.success("Folder renamed successfully!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to rename folder.");
+    }
+  };
+
+  const handleRenameEvent = async (oldCategory) => {
+    if (!newEventName.trim() || newEventName === oldCategory) return setEditingEvent(null);
+    try {
+      await axios.patch(`${import.meta.env.VITE_API_URL || ""}/api/gallery/rename-category`, {
+        clientFolder: activeClientFolder,
+        oldCategory,
+        newCategory: newEventName
+      });
+      setGalleryItems(prev => prev.map(item =>
+        (item.clientFolder || 'Default Client') === activeClientFolder && item.category === oldCategory
+          ? { ...item, category: newEventName }
+          : item
+      ));
+      setEditingEvent(null);
+      setNewEventName("");
+      toast.success("Event folder renamed!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to rename event category.");
+    }
+  };
+
+  const handleUpdateTitle = async (id, oldTitle) => {
+    if (!newItemTitle.trim() || newItemTitle === oldTitle) return setEditingItemId(null);
+    try {
+      const res = await axios.patch(`${import.meta.env.VITE_API_URL || ""}/api/gallery/${id}`, { title: newItemTitle });
+      setGalleryItems(prev => prev.map(item => item._id === id ? res.data : item));
+      setEditingItemId(null);
+      setNewItemTitle("");
+      toast.success("Title updated!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update title.");
     }
   };
 
@@ -163,9 +210,9 @@ export default function SmartGallery() {
   const filteredItems = itemsForActiveClient.filter(item => item.category === activeEventFolder);
 
   return (
-    <div className="space-y-8 md:space-y-12 text-charcoal px-4 md:px-0 pb-20 mt-4">
+    <div className="space-y-8 md:space-y-12 text-charcoal px-4 md:px-0 pb-20 mt-4 animate-in fade-in duration-1000">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 animate-in slide-in-from-top-4 duration-700">
         <div>
           <h1 className="font-serif text-3xl md:text-5xl">Smart Gallery</h1>
           <p className="text-[10px] md:text-xs text-warmgray mt-3 font-bold uppercase tracking-[0.4em]">Organized Client Folders</p>
@@ -179,7 +226,7 @@ export default function SmartGallery() {
       </div>
 
       {/* Breadcrumb Navigation */}
-      <div className="flex items-center gap-3 text-sm text-warmgray font-medium">
+      <div className="flex items-center gap-3 text-sm text-warmgray font-medium animate-in fade-in slide-in-from-left-4 duration-700 delay-200" style={{ animationFillMode: 'backwards' }}>
         <span className="cursor-pointer hover:text-charcoal transition-colors" onClick={() => { setActiveClientFolder(null); setActiveEventFolder(null); }}>Gallery</span>
         {activeClientFolder && (
           <>
@@ -208,8 +255,9 @@ export default function SmartGallery() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-[10px] uppercase font-bold tracking-widest text-warmgray ml-1">Client Folder</label>
-                  <select name="clientFolderSelect" defaultValue={activeClientFolder || clientFolders[0]} className="w-full bg-ivory/40 border border-[#e6e3df] rounded-xl px-4 py-3 text-sm focus:outline-mutedbrown appearance-none custom-select">
-                    {clientFolders.map(c => <option key={c} value={c}>{c}</option>)}
+                  <select name="clientFolderSelect" defaultValue={activeClientFolder || ""} className="w-full bg-ivory/40 border border-[#e6e3df] rounded-xl px-4 py-3 text-sm focus:outline-mutedbrown appearance-none custom-select">
+                    <option value="" disabled>Select a client...</option>
+                    {clientFolders.filter(c => c !== 'Default Client').map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                   <input type="text" name="newClientFolder" placeholder="Or type new client name..." className="w-full mt-2 bg-white border border-[#e6e3df] rounded-xl px-4 py-3 text-sm focus:outline-mutedbrown" />
                 </div>
@@ -252,8 +300,12 @@ export default function SmartGallery() {
                 </div>
               )}
 
-              <button type="submit" className="w-full bg-charcoal text-white py-4 rounded-xl text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-mutedbrown transition-all shadow-xl">
-                Add to Folder
+              <button
+                type="submit"
+                disabled={submitting}
+                className="w-full bg-charcoal text-white py-4 rounded-xl text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-mutedbrown transition-all shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {submitting ? "Processing Luxury Asset..." : "Add to Folder"}
               </button>
             </form>
           </div>
@@ -265,15 +317,52 @@ export default function SmartGallery() {
       {/* LEVEL 1: Client Folders */}
       {!activeClientFolder && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {clientFolders.map(client => {
+          {clientFolders.map((client, idx) => {
             const itemsCount = galleryItems.filter(i => (i.clientFolder || 'Default Client') === client).length;
+            const isEditing = editingClient === client;
+
             return (
-              <div key={client} onClick={() => setActiveClientFolder(client)} className="group bg-white p-6 rounded-3xl border border-ivory/50 shadow-sm hover:shadow-xl transition-all cursor-pointer hover:-translate-y-1 flex flex-col gap-4">
-                <div className="w-16 h-16 bg-ivory rounded-2xl flex items-center justify-center text-charcoal group-hover:bg-charcoal group-hover:text-white transition-colors">
-                  <Folder size={28} />
+              <div
+                key={client}
+                onClick={() => !isEditing && setActiveClientFolder(client)}
+                className="group bg-white p-6 rounded-3xl border border-ivory/50 shadow-sm hover:shadow-xl transition-all duration-700 cursor-pointer hover:-translate-y-2 flex flex-col gap-4 relative animate-in fade-in slide-in-from-bottom-8"
+                style={{ animationDelay: `${idx * 100}ms`, animationFillMode: 'backwards' }}
+              >
+                <div className="flex justify-between items-start">
+                  <div className="w-16 h-16 bg-ivory rounded-2xl flex items-center justify-center text-charcoal group-hover:bg-charcoal group-hover:text-white transition-all duration-500 transform group-hover:scale-110">
+                    <Folder size={28} />
+                  </div>
+                  {isEditing ? (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleRenameClient(client); }}
+                      className="p-2 bg-charcoal text-white rounded-full hover:bg-mutedbrown transition-colors shadow-lg"
+                    >
+                      <Check size={16} />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setEditingClient(client); setNewClientName(client); }}
+                      className="p-2 text-warmgray hover:text-charcoal hover:bg-ivory rounded-full transition-all opacity-0 group-hover:opacity-100"
+                    >
+                      <Edit3 size={16} />
+                    </button>
+                  )
+                  }
                 </div>
                 <div>
-                  <h3 className="font-serif text-xl mb-1">{client}</h3>
+                  {isEditing ? (
+                    <input
+                      autoFocus
+                      type="text"
+                      className="w-full bg-ivory/50 border border-mutedbrown rounded-lg px-2 py-1 text-sm font-serif mb-1 outline-none"
+                      value={newClientName}
+                      onChange={(e) => setNewClientName(e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      onKeyDown={(e) => e.key === 'Enter' && handleRenameClient(client)}
+                    />
+                  ) : (
+                    <h3 className="font-serif text-xl mb-1">{client}</h3>
+                  )}
                   <p className="text-xs text-warmgray font-medium uppercase tracking-widest">{itemsCount} Moments</p>
                 </div>
               </div>
@@ -285,15 +374,51 @@ export default function SmartGallery() {
       {/* LEVEL 2: Event Folders */}
       {activeClientFolder && !activeEventFolder && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {eventFolders.map(event => {
+          {eventFolders.map((event, idx) => {
             const itemsCount = itemsForActiveClient.filter(i => i.category === event).length;
+            const isEditing = editingEvent === event;
+
             return (
-              <div key={event} onClick={() => setActiveEventFolder(event)} className="group bg-white p-6 rounded-3xl border border-ivory/50 shadow-sm hover:shadow-xl transition-all cursor-pointer hover:-translate-y-1 flex flex-col gap-4">
-                <div className="w-16 h-16 bg-ivory/50 rounded-2xl flex items-center justify-center text-charcoal group-hover:bg-charcoal group-hover:text-white transition-colors">
-                  <FolderPlus size={28} />
+              <div
+                key={event}
+                onClick={() => !isEditing && setActiveEventFolder(event)}
+                className="group bg-white p-6 rounded-3xl border border-ivory/50 shadow-sm hover:shadow-xl transition-all duration-700 cursor-pointer hover:-translate-y-2 flex flex-col gap-4 relative animate-in fade-in slide-in-from-bottom-8"
+                style={{ animationDelay: `${idx * 100}ms`, animationFillMode: 'backwards' }}
+              >
+                <div className="flex justify-between items-start">
+                  <div className="w-16 h-16 bg-ivory/50 rounded-2xl flex items-center justify-center text-charcoal group-hover:bg-charcoal group-hover:text-white transition-all duration-500 transform group-hover:scale-110">
+                    <FolderPlus size={28} />
+                  </div>
+                  {isEditing ? (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleRenameEvent(event); }}
+                      className="p-2 bg-charcoal text-white rounded-full hover:bg-mutedbrown transition-colors shadow-lg"
+                    >
+                      <Check size={16} />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setEditingEvent(event); setNewEventName(event); }}
+                      className="p-2 text-warmgray hover:text-charcoal hover:bg-ivory rounded-full transition-all opacity-0 group-hover:opacity-100"
+                    >
+                      <Edit3 size={16} />
+                    </button>
+                  )}
                 </div>
                 <div>
-                  <h3 className="font-serif text-xl mb-1">{event}</h3>
+                  {isEditing ? (
+                    <input
+                      autoFocus
+                      type="text"
+                      className="w-full bg-white border border-mutedbrown rounded-lg px-2 py-1 text-sm font-serif mb-1 outline-none"
+                      value={newEventName}
+                      onChange={(e) => setNewEventName(e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      onKeyDown={(e) => e.key === 'Enter' && handleRenameEvent(event)}
+                    />
+                  ) : (
+                    <h3 className="font-serif text-xl mb-1">{event}</h3>
+                  )}
                   <p className="text-xs text-warmgray font-medium uppercase tracking-widest">{itemsCount} Assets</p>
                 </div>
               </div>
@@ -311,15 +436,20 @@ export default function SmartGallery() {
             const isVideo = item.type === 'video';
 
             return (
-              <div key={id} className={`group relative bg-white rounded-3xl overflow-hidden border border-ivory/50 shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 cursor-pointer break-inside-avoid ${viewMode === 'grid' ? 'aspect-4/5' : 'mb-6'}`} onClick={() => item.type === 'drive' ? window.open(item.link || item.url, '_blank') : setLightboxItem(item)}>
-                <div className="w-full h-full relative">
+              <div
+                key={id}
+                className={`group relative bg-white rounded-3xl overflow-hidden border border-ivory/50 shadow-sm hover:shadow-2xl transition-all duration-700 hover:-translate-y-2 cursor-pointer break-inside-avoid animate-in fade-in slide-in-from-bottom-8 ${viewMode === 'grid' ? 'aspect-4/5' : 'mb-6'}`}
+                style={{ animationDelay: `${idx * 50}ms`, animationFillMode: 'backwards' }}
+                onClick={() => item.type === 'drive' ? window.open(item.link || item.url, '_blank') : setLightboxItem(item)}
+              >
+                <div className="w-full h-full relative overflow-hidden">
                   {isVideo ? (
-                    <video src={item.url} className="w-full h-auto object-cover block" muted loop onMouseOver={e => e.target.play()} onMouseOut={e => e.target.pause()} />
+                    <video src={item.url} className="w-full h-auto object-cover block group-hover:scale-105 transition-transform duration-1000" muted loop onMouseOver={e => e.target.play()} onMouseOut={e => e.target.pause()} />
                   ) : (
                     <img
                       src={item.url}
                       alt={item.albumName || "Gallery"}
-                      className="w-full h-auto min-h-[240px] bg-gray-50 object-cover block query-target"
+                      className="w-full h-auto min-h-[240px] bg-gray-50 object-cover block query-target group-hover:scale-105 transition-transform duration-1000"
                       loading="lazy"
                       onError={(e) => {
                         e.target.onerror = null;
@@ -343,23 +473,45 @@ export default function SmartGallery() {
                     </div>
                   )}
                   <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                    <h3 className="text-white font-serif text-lg">{item.title || "Wedding Moment"}</h3>
-                    <div className="flex items-center justify-between mt-4">
+                    {editingItemId === id ? (
+                      <input
+                        autoFocus
+                        type="text"
+                        className="w-full bg-white/20 border border-white/40 rounded-lg px-2 py-1 text-sm text-white font-serif mb-2 outline-none backdrop-blur-md"
+                        value={newItemTitle}
+                        onChange={(e) => setNewItemTitle(e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => e.key === 'Enter' && handleUpdateTitle(id, item.title)}
+                      />
+                    ) : (
+                      <h3 className="text-white font-serif text-lg truncate mb-1">{item.title || "Wedding Moment"}</h3>
+                    )}
+                    <div className="flex items-center justify-between mt-3">
                       <div className="flex gap-2">
-                        <button onClick={(e) => toggleFavorite(id, e)} className={`w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-md border transition-colors ${isFav ? 'bg-white/20 border-gold/50 text-gold' : 'bg-white/10 border-white/20 text-white hover:bg-white/20'}`}>
-                          <Heart size={16} fill={isFav ? "currentColor" : "none"} />
+                        <button onClick={(e) => toggleFavorite(id, e)} className={`w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md border transition-colors ${isFav ? 'bg-white/20 border-gold/50 text-gold' : 'bg-white/10 border-white/20 text-white hover:bg-white/20'}`}>
+                          <Heart size={15} fill={isFav ? "currentColor" : "none"} />
                         </button>
                         {item.type === 'drive' ? (
-                          <button onClick={(e) => { e.stopPropagation(); window.open(item.link || item.url, '_blank') }} className="px-4 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white backdrop-blur-md hover:bg-[#1aa0a0] hover:border-[#1aa0a0] transition-all text-xs font-bold tracking-widest">
-                            <Share2 size={16} className="mr-2" /> Open Drive
+                          <button onClick={(e) => { e.stopPropagation(); window.open(item.link || item.url, '_blank') }} className="px-3 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white backdrop-blur-md hover:bg-[#1aa0a0] hover:border-[#1aa0a0] transition-all text-[10px] font-bold tracking-widest">
+                            <Share2 size={14} className="mr-2" /> Drive
                           </button>
                         ) : (
-                          <button onClick={(e) => downloadItem(item.url, e)} className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white backdrop-blur-md hover:bg-white hover:text-charcoal transition-all">
-                            <Download size={16} />
+                          <button onClick={(e) => downloadItem(item.url, e)} className="w-9 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white backdrop-blur-md hover:bg-white hover:text-charcoal transition-all">
+                            <Download size={15} />
                           </button>
                         )}
-                        <button onClick={(e) => deleteItem(id, e)} className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white backdrop-blur-md hover:bg-red-500 hover:border-red-500 hover:text-white transition-all ml-1">
-                          <Trash2 size={16} />
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (editingItemId === id) handleUpdateTitle(id, item.title);
+                            else { setEditingItemId(id); setNewItemTitle(item.title || ""); }
+                          }}
+                          className={`w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md border transition-all ${editingItemId === id ? 'bg-green-500 border-green-500 text-white' : 'bg-white/10 border-white/20 text-white hover:bg-charcoal'}`}
+                        >
+                          {editingItemId === id ? <Check size={15} /> : <Edit3 size={15} />}
+                        </button>
+                        <button onClick={(e) => deleteItem(id, e)} className="w-9 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white backdrop-blur-md hover:bg-red-500 hover:border-red-500 hover:text-white transition-all">
+                          <Trash2 size={15} />
                         </button>
                       </div>
                     </div>

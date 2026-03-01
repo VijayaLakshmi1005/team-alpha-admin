@@ -180,8 +180,8 @@ export default function Calendar() {
                     </div>
 
                     <div className="grid grid-cols-7 gap-px bg-ivory/40 rounded-3xl overflow-hidden border border-ivory shadow-inner">
-                        {weekDays.map(day => (
-                            <div key={day} className="bg-ivory/20 py-2 sm:py-5 px-1 sm:px-5 text-[7px] sm:text-[10px] uppercase tracking-[0.1em] sm:tracking-[0.2em] text-mutedbrown font-bold text-center border-b border-ivory">
+                        {weekDays.map((day, dIdx) => (
+                            <div key={day} className="bg-ivory/20 py-2 sm:py-5 px-1 sm:px-5 text-[7px] sm:text-[10px] uppercase tracking-widest sm:tracking-[0.2em] text-mutedbrown font-bold text-center border-b border-ivory">
                                 {day}
                             </div>
                         ))}

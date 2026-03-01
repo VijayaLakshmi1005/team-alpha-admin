@@ -86,10 +86,10 @@ export default function CRM() {
         <button
           onClick={() => {
             if (activeTab === 'invoices') setShowInvoiceForm(true);
-            else if (activeTab === 'team') setShowLeadForm(false); // We'll handle photographer add via list
+            else if (activeTab === 'team') setShowLeadForm(false);
             else setShowLeadForm(true);
           }}
-          className={`w-full md:w-auto flex items-center justify-center gap-2 bg-charcoal text-white px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest hover:bg-mutedbrown transition-all shadow-xl active:scale-95 ${activeTab === 'team' ? 'hidden' : ''}`}
+          className={`w-full md:w-auto flex items-center justify-center gap-2 bg-charcoal text-white px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest hover:bg-mutedbrown hover:-translate-y-1 transition-all duration-500 shadow-xl hover:shadow-2xl active:scale-95 ${activeTab === 'team' ? 'hidden' : ''}`}
         >
           <Plus size={16} />
           {activeTab === 'invoices' ? 'New Invoice' : 'Add New Lead'}
@@ -167,10 +167,11 @@ export default function CRM() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-ivory text-sm">
-                  {filteredLeads.length > 0 ? filteredLeads.map((lead) => (
+                  {filteredLeads.length > 0 ? filteredLeads.map((lead, idx) => (
                     <tr
                       key={lead._id}
-                      className="hover:bg-ivory/30 transition-all cursor-pointer group"
+                      className="hover:bg-white hover:shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:-translate-y-0.5 transition-all duration-500 cursor-pointer group bg-transparent border-transparent animate-in fade-in slide-in-from-bottom-4"
+                      style={{ animationDelay: `${idx * 50}ms`, animationFillMode: 'backwards' }}
                       onClick={() => setSelectedLead(lead)}
                     >
                       <td className="px-8 py-6">

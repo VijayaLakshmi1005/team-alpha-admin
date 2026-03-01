@@ -58,6 +58,45 @@ router.patch('/:id/select', async (req, res) => {
     res.json(item);
 });
 
+router.patch('/rename-folder', async (req, res) => {
+    const { oldName, newName } = req.body;
+    try {
+        const query = oldName === 'Default Client'
+            ? { $or: [{ clientFolder: oldName }, { clientFolder: { $exists: false } }, { clientFolder: null }] }
+            : { clientFolder: oldName };
+        await Gallery.updateMany(query, { clientFolder: newName });
+        res.json({ message: 'Folder renamed successfully' });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to rename folder' });
+    }
+});
+
+router.patch('/rename-category', async (req, res) => {
+    const { clientFolder, oldCategory, newCategory } = req.body;
+    try {
+        const folderQuery = clientFolder === 'Default Client'
+            ? { $in: ['Default Client', null] }
+            : clientFolder;
+
+        await Gallery.updateMany(
+            { clientFolder: folderQuery, category: oldCategory },
+            { category: newCategory }
+        );
+        res.json({ message: 'Category renamed successfully' });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to rename category' });
+    }
+});
+
+router.patch('/:id', async (req, res) => {
+    try {
+        const item = await Gallery.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json(item);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to update item' });
+    }
+});
+
 router.delete('/:id', async (req, res) => {
     try {
         await Gallery.findByIdAndDelete(req.params.id);
@@ -66,5 +105,7 @@ router.delete('/:id', async (req, res) => {
         res.status(500).json({ error: 'Failed to delete item' });
     }
 });
+
+
 
 export default router;
