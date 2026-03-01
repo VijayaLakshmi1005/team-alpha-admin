@@ -23,7 +23,8 @@ import calendarRoutes from './routes/calendarRoutes.js';
 import photographerRoutes from './routes/photographerRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
 import invoiceRoutes from './routes/invoiceRoutes.js';
-dotenv.config();
+import { initCronJobs } from './services/ReminderService.js';
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 app.use(cors());
@@ -37,6 +38,8 @@ const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/teamalpha"
 mongoose.connect(MONGO_URI)
     .then(() => {
         console.log("MongoDB Connected for Team Alpha Admin");
+        // Initialize Cron Jobs after DB is connected
+        initCronJobs();
     })
     .catch(err => console.error("MongoDB Connection Error:", err));
 

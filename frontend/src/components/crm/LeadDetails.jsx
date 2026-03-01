@@ -153,11 +153,11 @@ export default function LeadDetails({ lead: initialLead, onClose, onGenerateInvo
                   </select>
                 ) : (
                   <span className={`text-[9px] uppercase tracking-widest px-2.5 py-1 rounded-full font-bold ${lead.status === 'New' ? 'bg-blue-50 text-blue-600' :
-                      lead.status === 'Follow-up' ? 'bg-amber-50 text-amber-600' :
-                        lead.status === 'Meeting' ? 'bg-purple-50 text-purple-600' :
-                          lead.status === 'Negotiation' ? 'bg-orange-50 text-orange-600' :
-                            lead.status === 'Converted' ? 'bg-green-50 text-green-600' :
-                              'bg-gray-100 text-gray-600'
+                    lead.status === 'Follow-up' ? 'bg-amber-50 text-amber-600' :
+                      lead.status === 'Meeting' ? 'bg-purple-50 text-purple-600' :
+                        lead.status === 'Negotiation' ? 'bg-orange-50 text-orange-600' :
+                          lead.status === 'Converted' ? 'bg-green-50 text-green-600' :
+                            'bg-gray-100 text-gray-600'
                     }`}>
                     {lead.status}
                   </span>
@@ -472,16 +472,17 @@ export default function LeadDetails({ lead: initialLead, onClose, onGenerateInvo
 
 
         {/* Footer Actions */}
-        <div className="p-8 border-t border-[#e6e3df] bg-ivory/80 backdrop-blur-md sticky bottom-0">
+        <div className="p-6 md:p-8 border-t border-[#e6e3df]/60 bg-white/80 backdrop-blur-xl sticky bottom-0 rounded-b-2xl z-20 shadow-[0_-10px_40px_-20px_rgba(0,0,0,0.1)]">
           <div className="flex gap-4">
             <button
               onClick={onGenerateInvoice}
-              className="flex-1 bg-charcoal text-white text-[11px] uppercase tracking-[0.2em] font-bold py-5 rounded-2xl hover:bg-mutedbrown transition-all shadow-xl active:scale-95">
+              className="relative overflow-hidden group flex-1 bg-charcoal text-white text-[11px] uppercase tracking-[0.2em] font-bold py-5 rounded-2xl hover:bg-mutedbrown hover:-translate-y-0.5 transition-all shadow-lg hover:shadow-xl active:translate-y-0 active:scale-95">
+              <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
               Generate Invoice
             </button>
             <button
               onClick={() => setShowFullLog(true)}
-              className="flex-1 bg-white border border-[#e6e3df] text-charcoal text-[11px] uppercase tracking-[0.2em] font-bold py-5 rounded-2xl hover:bg-ivory transition-all shadow-sm active:scale-95"
+              className="flex-1 bg-ivory border border-[#e6e3df] text-charcoal text-[11px] uppercase tracking-[0.2em] font-bold py-5 rounded-2xl hover:bg-white hover:border-charcoal hover:-translate-y-0.5 transition-all shadow-sm hover:shadow-md active:translate-y-0 active:scale-95"
             >
               Full Log
             </button>

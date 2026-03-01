@@ -187,7 +187,7 @@ export default function Calendar() {
                         ))}
 
                         {blanks.map((_, i) => (
-                            <div key={`blank-${i}`} className="bg-invory/5 min-h-[100px] md:min-h-[140px] border-r border-b border-ivory/30"></div>
+                            <div key={`blank-${i}`} className="bg-ivory/5 min-h-[100px] md:min-h-[140px] border-r border-b border-ivory/30"></div>
                         ))}
 
                         {daysInMonth.map((day, i) => {

@@ -16,3 +16,9 @@
 body {
     @apply bg-ivory text-charcoal font-sans leading-relaxed;
 }
+
+@keyframes shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}

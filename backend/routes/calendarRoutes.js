@@ -1,5 +1,6 @@
 import express from 'express';
 import Event from '../models/Event.js';
+import { sendEventNotification } from '../services/ReminderService.js';
 
 const router = express.Router();
 
@@ -18,6 +19,12 @@ router.post('/', async (req, res) => {
     try {
         const event = new Event(req.body);
         await event.save();
+
+        // Trigger real time email notification to assigned photographers
+        if (event.teamMembers && event.teamMembers.length > 0) {
+            sendEventNotification(event, event.teamMembers);
+        }
+
         res.status(201).json(event);
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -28,6 +35,12 @@ router.post('/', async (req, res) => {
 router.patch('/:id', async (req, res) => {
     try {
         const event = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
+
+        // Trigger real time email notification to newly assigned photographers
+        if (event && req.body.teamMembers) {
+            sendEventNotification(event, req.body.teamMembers);
+        }
+
         res.json(event);
     } catch (error) {
         res.status(400).json({ message: error.message });
