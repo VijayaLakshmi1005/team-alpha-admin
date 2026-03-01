@@ -77,10 +77,10 @@ export default function CRM() {
   });
 
   return (
-    <div className="space-y-6 md:space-y-10 w-full animate-in fade-in duration-700">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+    <div className="space-y-6 md:space-y-10 w-full animate-in fade-in duration-1500">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 animate-in slide-in-from-top-8 duration-1000 fill-mode-forwards">
         <div>
-          <h1 className="font-serif text-3xl md:text-4xl text-charcoal">Team Alpha Photography</h1>
+          <h1 className="font-serif text-3xl md:text-4xl text-charcoal animate-gentle-fade">Team Alpha Photography</h1>
           <p className="text-sm text-warmgray mt-1 uppercase tracking-widest font-bold text-[10px]">The Wedding Artist</p>
         </div>
         <button
@@ -238,9 +238,9 @@ export default function CRM() {
                   )) : (
                     <tr>
                       <td colSpan="4" className="px-8 py-32 text-center">
-                        <div className="flex flex-col items-center gap-4 opacity-40">
-                          <Users size={48} strokeWidth={1} />
-                          <p className="font-serif italic text-lg text-warmgray">Searching for the next premium inquiry...</p>
+                        <div className="flex flex-col items-center gap-4 opacity-70 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                          <Users size={56} strokeWidth={1} className="text-warmgray animate-float" />
+                          <p className="font-serif italic text-xl text-warmgray mb-2 animate-gentle-fade">Searching for the next premium inquiry...</p>
                         </div>
                       </td>
                     </tr>
@@ -249,55 +249,68 @@ export default function CRM() {
               </table>
             </div>
           </div>
-        )}
+        )
+        }
 
-        {activeTab === 'invoices' && (
-          <div className="w-full">
-            <InvoiceForm onClose={() => setActiveTab('leads')} />
-          </div>
-        )}
+        {
+          activeTab === 'invoices' && (
+            <div className="w-full">
+              <InvoiceForm onClose={() => setActiveTab('leads')} />
+            </div>
+          )
+        }
 
-        {activeTab === 'tasks' && (
-          <div className="max-w-4xl mx-auto">
-            <TaskList />
-          </div>
-        )}
+        {
+          activeTab === 'tasks' && (
+            <div className="max-w-4xl mx-auto">
+              <TaskList />
+            </div>
+          )
+        }
 
-        {activeTab === 'team' && (
-          <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-            <PhotographerList />
-          </div>
-        )}
-      </div>
+        {
+          activeTab === 'team' && (
+            <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <PhotographerList />
+            </div>
+          )
+        }
+      </div >
 
       {/* Forms & Modals */}
-      {showLeadForm && (
-        <LeadForm
-          onClose={() => setShowLeadForm(false)}
-          onLeadAdded={handleLeadAdded}
-        />
-      )}
-
-      {showInvoiceForm && (
-        <div className="fixed inset-0 bg-charcoal/40 backdrop-blur-md z-60 flex items-center justify-center p-4">
-          <InvoiceForm
-            onClose={() => {
-              setShowInvoiceForm(false);
-              setInvoiceDefaults({ clientName: "" });
-            }}
-            initialClientName={invoiceDefaults.clientName}
+      {
+        showLeadForm && (
+          <LeadForm
+            onClose={() => setShowLeadForm(false)}
+            onLeadAdded={handleLeadAdded}
           />
-        </div>
-      )}
+        )
+      }
+
+      {
+        showInvoiceForm && (
+          <div className="fixed inset-0 bg-charcoal/40 backdrop-blur-md z-60 flex items-center justify-center p-4">
+            <InvoiceForm
+              onClose={() => {
+                setShowInvoiceForm(false);
+                setInvoiceDefaults({ clientName: "" });
+              }}
+              initialClientName={invoiceDefaults.clientName}
+            />
+          </div>
+        )
+      }
 
       {/* Side Panel for Lead Details */}
-      {selectedLead && (
-        <LeadDetails
-          lead={selectedLead}
-          onClose={() => setSelectedLead(null)}
-          onGenerateInvoice={() => handleGenerateInvoice(selectedLead)}
-        />
-      )}
-    </div>
+      {
+        selectedLead && (
+          <LeadDetails
+            lead={selectedLead}
+            onClose={() => setSelectedLead(null)}
+            onGenerateInvoice={() => handleGenerateInvoice(selectedLead)}
+          />
+        )
+      }
+    </div >
   );
 }

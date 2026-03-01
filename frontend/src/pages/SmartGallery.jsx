@@ -210,15 +210,15 @@ export default function SmartGallery() {
   const filteredItems = itemsForActiveClient.filter(item => item.category === activeEventFolder);
 
   return (
-    <div className="space-y-8 md:space-y-12 text-charcoal px-4 md:px-0 pb-20 mt-4 animate-in fade-in duration-1000">
+    <div className="space-y-8 md:space-y-12 text-charcoal px-4 md:px-0 pb-20 mt-4 animate-in fade-in duration-1500">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 animate-in slide-in-from-top-4 duration-700">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 animate-in slide-in-from-top-8 fade-in duration-1000 fill-mode-forwards">
         <div>
-          <h1 className="font-serif text-3xl md:text-5xl">Smart Gallery</h1>
+          <h1 className="font-serif text-3xl md:text-5xl animate-gentle-fade">Smart Gallery</h1>
           <p className="text-[10px] md:text-xs text-warmgray mt-3 font-bold uppercase tracking-[0.4em]">Organized Client Folders</p>
         </div>
         <div className="flex gap-4 w-full md:w-auto">
-          <button onClick={() => setShowUploadForm(true)} className="flex-1 md:flex-none flex items-center justify-center gap-3 bg-charcoal text-white px-6 py-4 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-mutedbrown transition-all shadow-xl active:scale-95">
+          <button onClick={() => setShowUploadForm(true)} className="flex-1 md:flex-none flex items-center justify-center gap-3 bg-charcoal text-white px-6 py-4 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-mutedbrown transition-all duration-500 shadow-xl hover:shadow-2xl hover:-translate-y-1 active:scale-95">
             <Upload size={18} />
             Upload Media
           </button>
@@ -444,12 +444,12 @@ export default function SmartGallery() {
               >
                 <div className="w-full h-full relative overflow-hidden">
                   {isVideo ? (
-                    <video src={item.url} className="w-full h-auto object-cover block group-hover:scale-105 transition-transform duration-1000" muted loop onMouseOver={e => e.target.play()} onMouseOut={e => e.target.pause()} />
+                    <video src={item.url} className="w-full h-auto object-cover block group-hover:scale-110 transition-transform duration-3000 ease-out" muted loop onMouseOver={e => e.target.play()} onMouseOut={e => e.target.pause()} />
                   ) : (
                     <img
                       src={item.url}
                       alt={item.albumName || "Gallery"}
-                      className="w-full h-auto min-h-[240px] bg-gray-50 object-cover block query-target group-hover:scale-105 transition-transform duration-1000"
+                      className="w-full h-auto min-h-[240px] bg-gray-50 object-cover block query-target group-hover:scale-110 transition-transform duration-3000 ease-out"
                       loading="lazy"
                       onError={(e) => {
                         e.target.onerror = null;
@@ -525,35 +525,36 @@ export default function SmartGallery() {
 
       {/* Empty State for Media */}
       {activeClientFolder && activeEventFolder && filteredItems.length === 0 && (
-        <div className="py-20 text-center flex flex-col items-center opacity-50">
-          <ImageIcon size={48} className="text-warmgray mb-4" strokeWidth={1} />
-          <p className="font-serif text-xl text-warmgray">No media found in {activeEventFolder}. Upload some!</p>
+        <div className="py-24 text-center flex flex-col items-center opacity-70 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <ImageIcon size={56} className="text-warmgray mb-6 animate-float" strokeWidth={1} />
+          <p className="font-serif text-2xl text-warmgray mb-2 animate-gentle-fade">Awaiting the moments...</p>
+          <p className="text-xs text-warmgray uppercase tracking-[0.2em] font-medium">No media found in {activeEventFolder}</p>
         </div>
       )}
 
       {/* Lightbox Modal */}
       {lightboxItem && (
-        <div className="fixed inset-0 z-100 bg-charcoal/95 backdrop-blur-xl animate-in fade-in duration-200 flex items-center justify-center p-4">
-          <button onClick={() => setLightboxItem(null)} className="absolute top-6 right-6 text-white/50 hover:text-white transition-colors p-2">
+        <div className="fixed inset-0 z-100 bg-charcoal/95 backdrop-blur-2xl animate-in fade-in duration-500 flex items-center justify-center p-4">
+          <button onClick={() => setLightboxItem(null)} className="absolute top-6 right-6 text-white/50 hover:text-white transition-all transform hover:rotate-90 hover:scale-110 duration-500 p-2 z-10">
             <X size={32} strokeWidth={1} />
           </button>
-          <div className="w-full max-w-6xl max-h-[90vh] flex flex-col items-center">
+          <div className="w-full max-w-7xl max-h-[90vh] flex flex-col items-center">
             {lightboxItem.type === 'video' ? (
-              <video src={lightboxItem.url} controls autoPlay className="max-h-[80vh] w-auto rounded-lg shadow-2xl" />
+              <video src={lightboxItem.url} controls autoPlay className="max-h-[85vh] w-auto rounded-xl shadow-[0_0_60px_rgba(0,0,0,0.5)] animate-in zoom-in-95 duration-700 ease-out" />
             ) : lightboxItem.type === 'drive' ? (
-              <div className="flex flex-col items-center justify-center p-12 bg-white/5 rounded-3xl border border-white/20 backdrop-blur-md text-center max-w-lg mb-8">
-                <Folder size={64} className="text-gold mb-6" strokeWidth={1} />
-                <h3 className="font-serif text-3xl text-white mb-2">{lightboxItem.title || "Google Drive Collection"}</h3>
-                <p className="text-white/60 text-sm mb-8">This is an external Drive Link containing high-resolution assets.</p>
-                <div className="bg-white/10 px-6 py-4 rounded-xl border border-white/20 animate-pulse">
-                  <p className="text-xs text-white uppercase tracking-widest font-bold flex items-center gap-3">
-                    Click the arrow below to navigate to the Drive folders
-                    <ChevronDown size={16} className="text-gold" />
+              <div className="flex flex-col items-center justify-center p-16 bg-white/5 rounded-3xl border border-white/10 backdrop-blur-md text-center max-w-lg mb-8 shadow-2xl animate-in slide-in-from-bottom-8 duration-700">
+                <Folder size={72} className="text-gold mb-8 animate-breathe shadow-gold" strokeWidth={1} />
+                <h3 className="font-serif text-4xl text-white mb-3">{lightboxItem.title || "Google Drive Collection"}</h3>
+                <p className="text-white/50 text-sm mb-10 tracking-wide font-light">This is an external Drive Link containing high-resolution assets.</p>
+                <div className="bg-white/5 hover:bg-white/10 transition-colors px-8 py-5 rounded-2xl border border-white/20">
+                  <p className="text-xs text-white uppercase tracking-[0.3em] font-bold flex items-center gap-4">
+                    Open to navigate folders
+                    <ChevronDown size={18} className="text-gold animate-bounce" />
                   </p>
                 </div>
               </div>
             ) : (
-              <img src={lightboxItem.url} className="max-h-[80vh] w-auto object-contain rounded-lg shadow-2xl" alt="Full view" />
+              <img src={lightboxItem.url} className="max-h-[85vh] w-auto object-contain rounded-xl shadow-[0_0_60px_rgba(0,0,0,0.5)] animate-in zoom-in-[0.98] fade-in duration-1000 ease-out" alt="Full view" />
             )}
 
             <div className="mt-8 flex items-center gap-6">

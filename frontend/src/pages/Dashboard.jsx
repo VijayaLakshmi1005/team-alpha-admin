@@ -51,10 +51,10 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="space-y-6 md:space-y-10 w-full animate-in fade-in duration-700">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+    <div className="space-y-6 md:space-y-10 w-full animate-in fade-in duration-1500">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 animate-in slide-in-from-top-8 duration-1000 fill-mode-forwards">
         <div>
-          <h1 className="font-serif text-4xl md:text-5xl text-charcoal">Registry Overview</h1>
+          <h1 className="font-serif text-4xl md:text-5xl text-charcoal animate-gentle-fade">Registry Overview</h1>
           <p className="text-[10px] md:text-xs text-warmgray mt-3 font-bold uppercase tracking-[0.4em]">Team Alpha Luxury Photography Studio</p>
         </div>
         <div className={`flex items-center gap-3 bg-white px-5 py-2.5 rounded-full border border-ivory text-[10px] font-bold uppercase tracking-widest ${isSystemOnline ? 'text-warmgray' : 'text-red-500'} shadow-sm transition-colors`}>
@@ -63,7 +63,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200 fill-mode-backwards">
         <StatCard
           title="Global Photo Assets"
           value={stats.totalPhotos.toLocaleString()}
@@ -86,17 +86,17 @@ export default function Dashboard() {
         />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-12 duration-[1500ms] delay-300 fill-mode-backwards">
         {/* Recent Activity section */}
-        <div className="xl:col-span-2 bg-white rounded-3xl md:rounded-[2.5rem] p-5 md:p-12 border border-[#e6e3df]/60 shadow-sm relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-ivory/40 rounded-full blur-[100px] -mr-40 -mt-40 group-hover:bg-beige/40 transition-all duration-1000"></div>
+        <div className="xl:col-span-2 bg-white rounded-3xl md:rounded-[2.5rem] p-5 md:p-12 border border-[#e6e3df]/60 shadow-sm relative overflow-hidden group hover:shadow-2xl transition-all duration-700 hover:-translate-y-2">
+          <div className="absolute top-0 right-0 w-80 h-80 bg-ivory/40 rounded-full blur-[100px] -mr-40 -mt-40 group-hover:bg-beige/40 transition-all duration-[2000ms] animate-slow-spin"></div>
 
           <div className="relative z-10">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-12">
-              <h2 className="font-serif text-2xl md:text-3xl">Latest Deliveries</h2>
+              <h2 className="font-serif text-2xl md:text-3xl transition-transform duration-700 group-hover:translate-x-2">Latest Deliveries</h2>
               <button
                 onClick={() => navigate('/crm')}
-                className="text-[10px] font-bold uppercase tracking-widest text-mutedbrown hover:text-charcoal border-b border-[#e6e3df] hover:border-charcoal transition-all pb-2"
+                className="text-[10px] font-bold uppercase tracking-widest text-mutedbrown hover:text-charcoal border-b border-[#e6e3df] hover:border-charcoal transition-all pb-2 opacity-70 hover:opacity-100"
               >
                 All Registry Assets
               </button>
@@ -136,10 +136,10 @@ export default function Dashboard() {
         </div>
 
         {/* Studio Calendar View */}
-        <div className="bg-charcoal text-white rounded-3xl md:rounded-[2.5rem] p-6 md:p-12 shadow-2xl relative overflow-hidden group">
+        <div className="bg-charcoal text-white rounded-3xl md:rounded-[2.5rem] p-6 md:p-12 shadow-2xl relative overflow-hidden group hover:-translate-y-2 transition-transform duration-700">
           <div className="absolute top-0 right-0 w-full h-full bg-linear-to-br from-white/5 to-transparent pointer-events-none"></div>
           <div className="relative z-10 flex flex-col h-full">
-            <h3 className="font-serif text-2xl md:text-3xl mb-12">Weekly Registry</h3>
+            <h3 className="font-serif text-2xl md:text-3xl mb-12 transition-transform duration-700 group-hover:translate-x-2">Weekly Registry</h3>
             <div className="space-y-10 flex-1">
               {upcomingEvents.length > 0 ? upcomingEvents.map((event, i) => (
                 <div key={i} className="space-y-4">

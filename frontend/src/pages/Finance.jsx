@@ -134,10 +134,10 @@ export default function Finance() {
     };
 
     return (
-        <div className="space-y-8 md:space-y-12 text-charcoal px-4 md:px-0 animate-in fade-in duration-700">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+        <div className="space-y-8 md:space-y-12 text-charcoal px-4 md:px-0 animate-in fade-in duration-1500">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 animate-in slide-in-from-top-8 duration-1000 fill-mode-forwards">
                 <div>
-                    <h1 className="font-serif text-3xl md:text-5xl">Financial Ledger</h1>
+                    <h1 className="font-serif text-3xl md:text-5xl animate-gentle-fade">Financial Ledger</h1>
                     <p className="text-[10px] md:text-xs text-warmgray mt-3 font-bold uppercase tracking-[0.4em]">Tracking luxury growth and studio metrics.</p>
                 </div>
                 <div className="flex gap-4 w-full md:w-auto">
@@ -158,8 +158,8 @@ export default function Finance() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-                <div className="bg-white p-8 md:p-10 rounded-[2.5rem] border border-ivory shadow-sm relative overflow-hidden group">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200 fill-mode-backwards">
+                <div className="bg-white p-8 md:p-10 rounded-[2.5rem] border border-ivory shadow-sm relative overflow-hidden group hover:shadow-xl hover:-translate-y-2 transition-all duration-700">
                     <div className="absolute top-0 right-0 p-8 opacity-5 text-charcoal group-hover:scale-110 transition-transform duration-700">
                         <TrendingUp size={120} />
                     </div>
@@ -171,7 +171,7 @@ export default function Finance() {
                     </div>
                 </div>
 
-                <div className="bg-white p-8 md:p-10 rounded-[2.5rem] border border-ivory shadow-sm relative overflow-hidden group">
+                <div className="bg-white p-8 md:p-10 rounded-[2.5rem] border border-ivory shadow-sm relative overflow-hidden group hover:shadow-xl hover:-translate-y-2 transition-all duration-700">
                     <div className="absolute top-0 right-0 p-8 opacity-5 text-charcoal group-hover:scale-110 transition-transform duration-700">
                         <TrendingDown size={120} />
                     </div>
@@ -183,7 +183,7 @@ export default function Finance() {
                     </div>
                 </div>
 
-                <div className="bg-charcoal p-8 md:p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
+                <div className="bg-charcoal p-8 md:p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden group hover:-translate-y-2 transition-transform duration-700">
                     <div className="absolute inset-0 bg-linear-to-br from-white/5 to-transparent pointer-events-none"></div>
                     <p className="text-[10px] text-white/50 uppercase tracking-[0.3em] font-bold mb-4">Studio Profit</p>
                     <h3 className="text-3xl md:text-5xl font-serif text-ivory">{formatCurrency(stats.annualProfit)}</h3>
@@ -193,8 +193,8 @@ export default function Finance() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
-                <div className="bg-white rounded-[2.5rem] border border-ivory shadow-sm p-8 md:p-12 overflow-hidden">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 animate-in fade-in slide-in-from-bottom-12 duration-[1500ms] delay-300 fill-mode-backwards">
+                <div className="bg-white rounded-[2.5rem] border border-ivory shadow-sm p-8 md:p-12 overflow-hidden hover:shadow-xl transition-shadow duration-700">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
                         <h4 className="font-serif text-2xl md:text-3xl">Recent Transactions</h4>
                         <div className="flex gap-3 w-full sm:w-auto">
@@ -234,12 +234,12 @@ export default function Finance() {
                                 </div>
                             </div>
                         )) : (
-                            <p className="text-center text-warmgray text-sm italic py-10">No recent transactions.</p>
+                            <p className="text-center text-warmgray text-sm italic py-10 animate-gentle-fade">No recent transactions.</p>
                         )}
                     </div>
                 </div>
 
-                <div className="bg-white rounded-[2.5rem] border border-ivory shadow-sm p-8 md:p-12">
+                <div className="bg-white rounded-[2.5rem] border border-ivory shadow-sm p-8 md:p-12 hover:shadow-xl transition-shadow duration-700">
                     <div className="flex justify-between items-center mb-10">
                         <h4 className="font-serif text-2xl md:text-3xl">Treasury Allocation</h4>
                         <button className="text-[10px] font-bold uppercase tracking-widest text-mutedbrown bg-ivory/50 px-4 py-2 rounded-full">FY 2025-26</button>
@@ -281,8 +281,8 @@ export default function Finance() {
             </div>
 
             {showExpenseModal && (
-                <div className="fixed inset-0 bg-charcoal/60 backdrop-blur-md z-100 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200 p-6 relative">
+                <div className="fixed inset-0 bg-charcoal/60 backdrop-blur-2xl z-100 flex items-center justify-center p-4 animate-in fade-in duration-500">
+                    <div className="bg-white rounded-3xl w-full max-w-md shadow-[0_0_60px_rgba(0,0,0,0.3)] animate-in zoom-in-95 duration-500 p-8 relative">
                         <button
                             onClick={() => {
                                 setShowExpenseModal(false);

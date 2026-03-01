@@ -69,10 +69,10 @@ export default function ActivityLog() {
     const unseenCount = notifications.filter(n => !n.isRead).length;
 
     return (
-        <div className="space-y-6 md:space-y-10 animate-in fade-in duration-700 w-full">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
+        <div className="space-y-6 md:space-y-10 animate-in fade-in duration-1500 w-full">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 animate-in slide-in-from-top-8 duration-1000 fill-mode-forwards">
                 <div>
-                    <h1 className="font-serif text-4xl md:text-5xl text-charcoal">System Activity Log</h1>
+                    <h1 className="font-serif text-4xl md:text-5xl text-charcoal animate-gentle-fade">System Activity Log</h1>
                     <p className="text-[10px] md:text-xs text-warmgray mt-3 font-bold uppercase tracking-[0.4em]">Real-Time Registry Notifications</p>
                 </div>
 
@@ -92,11 +92,11 @@ export default function ActivityLog() {
                 </div>
             </div>
 
-            <div className="bg-white rounded-3xl md:rounded-4xl border border-[#e6e3df]/60 shadow-sm overflow-hidden w-full">
+            <div className="bg-white rounded-3xl md:rounded-4xl border border-[#e6e3df]/60 shadow-sm overflow-hidden w-full animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200 fill-mode-backwards">
                 <div className="p-6 border-b border-[#e6e3df]/60 flex justify-between items-center bg-gray-50/50">
                     <h2 className="font-serif text-2xl text-charcoal flex items-center gap-3">
                         Recent Logs
-                        {unseenCount > 0 && <span className="bg-charcoal text-white font-sans text-xs px-3 py-1 rounded-full">{unseenCount} unseen</span>}
+                        {unseenCount > 0 && <span className="bg-charcoal text-white font-sans text-xs px-3 py-1 rounded-full animate-pulse">{unseenCount} unseen</span>}
                     </h2>
                 </div>
 
@@ -106,12 +106,13 @@ export default function ActivityLog() {
                     </div>
                 ) : notifications.length > 0 ? (
                     <div className="divide-y divide-[#e6e3df]/60">
-                        {notifications.map((notif) => (
+                        {notifications.map((notif, idx) => (
                             <div
                                 key={notif._id}
-                                className={`p-5 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 group transition-all duration-300 relative ${!notif.isRead ? 'bg-amber-50/30 shadow-[inset_4px_0_0_rgba(212,175,55,1)]' : 'bg-white hover:bg-gray-50'}`}
+                                className={`p-5 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 group transition-all duration-500 relative animate-in fade-in slide-in-from-bottom-4 ${!notif.isRead ? 'bg-amber-50/30 shadow-[inset_4px_0_0_rgba(212,175,55,1)]' : 'bg-white hover:bg-gray-50 hover:-translate-y-1 hover:shadow-lg z-10'}`}
+                                style={{ animationDelay: `${idx * 50}ms`, animationFillMode: 'backwards' }}
                             >
-                                <div className={`shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl flex items-center justify-center transition-colors ${notif.isRead ? 'bg-gray-100 text-warmgray' : 'bg-gold/20 text-gold-700 shadow-sm'}`}>
+                                <div className={`shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl flex items-center justify-center transition-colors ${notif.isRead ? 'bg-gray-100 text-warmgray group-hover:bg-charcoal group-hover:text-white' : 'bg-gold/20 text-gold-700 shadow-sm'}`}>
                                     <Bell size={18} className="md:w-5 md:h-5" strokeWidth={1.5} />
                                 </div>
 
@@ -154,11 +155,11 @@ export default function ActivityLog() {
                         ))}
                     </div>
                 ) : (
-                    <div className="p-20 text-center text-warmgray flex flex-col items-center justify-center gap-4">
-                        <div className="w-20 h-20 rounded-full bg-gray-50 flex items-center justify-center border border-[#e6e3df]/60 mb-2">
-                            <AlertCircle size={32} className="opacity-40" />
+                    <div className="p-20 text-center text-warmgray flex flex-col items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                        <div className="w-20 h-20 rounded-full bg-gray-50 flex items-center justify-center border border-[#e6e3df]/60 mb-2 shadow-inner">
+                            <AlertCircle size={32} className="opacity-40 animate-float" />
                         </div>
-                        <p className="font-serif text-2xl text-charcoal">All clear</p>
+                        <p className="font-serif text-2xl text-charcoal animate-gentle-fade">All clear</p>
                         <p className="text-sm font-medium">No activity traces or notifications detected in the system database.</p>
                     </div>
                 )}

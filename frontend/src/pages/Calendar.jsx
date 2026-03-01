@@ -115,11 +115,11 @@ export default function Calendar() {
     const navigate = useNavigate();
 
     return (
-        <div className="space-y-8 md:space-y-12 text-charcoal px-4 md:px-0 pb-20 animate-in fade-in duration-700">
+        <div className="space-y-8 md:space-y-12 text-charcoal px-4 md:px-0 pb-20 animate-in fade-in duration-1500">
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mt-4">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mt-4 animate-in slide-in-from-top-8 duration-1000 fill-mode-forwards">
                 <div>
-                    <h1 className="font-serif text-3xl md:text-5xl">Studio Itinerary</h1>
+                    <h1 className="font-serif text-3xl md:text-5xl animate-gentle-fade">Studio Itinerary</h1>
                     <p className="text-[10px] md:text-xs text-warmgray mt-3 font-bold uppercase tracking-[0.4em]">Coordinating luxury moments across the globe.</p>
                 </div>
                 <div className="flex gap-4 w-full md:w-auto relative z-20">
@@ -138,9 +138,9 @@ export default function Calendar() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-10 lg:gap-12">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-10 lg:gap-12 animate-in fade-in slide-in-from-bottom-12 duration-[1500ms] delay-200 fill-mode-backwards">
                 {/* Calendar Grid */}
-                <div className="xl:col-span-2 bg-white rounded-3xl sm:rounded-[2.5rem] border border-ivory shadow-sm p-4 sm:p-6 md:p-12 relative overflow-hidden">
+                <div className="xl:col-span-2 bg-white rounded-3xl sm:rounded-[2.5rem] border border-ivory shadow-sm p-4 sm:p-6 md:p-12 relative overflow-hidden transition-all duration-700 hover:shadow-xl group/cal">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-12">
                         <div className="flex items-center gap-4">
                             <h3 className="font-serif text-3xl md:text-4xl min-w-[200px]">{format(currentDate, 'MMMM yyyy')}</h3>
@@ -235,9 +235,9 @@ export default function Calendar() {
                 {/* Sidebar */}
                 <div className="space-y-8 md:space-y-10">
                     {/* Upcoming Registry */}
-                    <div className="bg-white rounded-3xl sm:rounded-[2.5rem] border border-ivory shadow-sm p-6 sm:p-8 md:p-10 relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-ivory rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-beige/50 transition-colors"></div>
-                        <h4 className="font-serif text-2xl md:text-3xl mb-10 relative z-10">Upcoming Registry</h4>
+                    <div className="bg-white rounded-3xl sm:rounded-[2.5rem] border border-ivory shadow-sm p-6 sm:p-8 md:p-10 relative overflow-hidden group hover:shadow-xl transition-all duration-700 hover:-translate-y-2">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-ivory rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-beige/50 transition-colors duration-[2000ms] animate-slow-spin"></div>
+                        <h4 className="font-serif text-2xl md:text-3xl mb-10 relative z-10 transition-transform duration-700 group-hover:translate-x-2">Upcoming Registry</h4>
 
                         <div className="space-y-10 relative z-10 min-h-[200px]">
                             {loading ? <p className="text-sm text-warmgray italic">Loading schedule...</p> :
@@ -281,9 +281,9 @@ export default function Calendar() {
                     </div>
 
                     {/* Team Sync Card */}
-                    <div className="bg-charcoal text-white rounded-3xl sm:rounded-[2.5rem] p-6 sm:p-8 md:p-10 shadow-2xl relative overflow-hidden">
+                    <div className="bg-charcoal text-white rounded-3xl sm:rounded-[2.5rem] p-6 sm:p-8 md:p-10 shadow-2xl relative overflow-hidden group hover:-translate-y-2 transition-transform duration-700">
                         <div className="absolute inset-0 bg-linear-to-tr from-white/5 to-transparent pointer-events-none"></div>
-                        <h4 className="font-serif text-2xl md:text-3xl mb-6 relative z-10">Team Sync</h4>
+                        <h4 className="font-serif text-2xl md:text-3xl mb-6 relative z-10 transition-transform duration-700 group-hover:translate-x-2">Team Sync</h4>
                         <p className="text-[11px] text-white/50 leading-relaxed mb-10 font-medium relative z-10">
                             Teams are synchronized for the upcoming week. Global coordination is active.
                         </p>
