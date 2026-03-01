@@ -130,46 +130,47 @@ export default function InvoiceForm({ onClose, initialClientName = "" }) {
   };
 
   return (
-    <div className="bg-white rounded-3xl border border-[#e6e3df]/40 shadow-2xl overflow-hidden w-full max-w-3xl mx-auto h-auto max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-300">
+    <div className="bg-white sm:rounded-3xl border border-[#e6e3df]/40 shadow-sm sm:shadow-2xl overflow-hidden w-full max-w-3xl mx-auto h-auto flex flex-col animate-in zoom-in-95 duration-300">
 
-      <div className="p-6 border-b border-ivory flex justify-between items-center bg-ivory/20 shrink-0">
-        <div>
-          <h2 className="font-serif text-3xl text-charcoal flex items-center gap-3">
-            <LayoutTemplate className="text-mutedbrown" /> Custom Estimate Generator
+      <div className="p-5 md:p-6 border-b border-ivory flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-ivory/20 shrink-0">
+        <div className="pr-8">
+          <h2 className="font-serif text-2xl md:text-3xl text-charcoal flex items-center gap-2 md:gap-3 leading-tight">
+            <LayoutTemplate className="text-mutedbrown hidden sm:block" /> Custom Estimate Generator
           </h2>
-          <p className="text-[10px] text-warmgray mt-1 font-bold uppercase tracking-[0.2em]">Craft beautiful PDFs instantly</p>
+          <p className="text-[9px] md:text-[10px] text-warmgray mt-2 md:mt-1 font-bold uppercase tracking-[0.2em] leading-normal w-3/4 md:w-full">Craft beautiful PDFs instantly</p>
         </div>
-        <div className="flex gap-4">
+        <div className="flex w-full md:w-auto gap-3 absolute top-5 right-5 md:relative md:top-auto md:right-auto justify-end">
           <button
             type="button"
             onClick={handleDownload}
             disabled={downloading}
-            className="bg-white border border-[#e6e3df] text-charcoal px-6 py-2 rounded-xl flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest hover:bg-ivory transition-all shadow-sm disabled:opacity-50"
+            className="flex-1 md:flex-none justify-center bg-white border border-[#e6e3df] text-charcoal px-4 md:px-6 py-2.5 rounded-xl flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest hover:bg-ivory transition-all shadow-sm disabled:opacity-50"
           >
-            <Download size={14} /> {downloading ? 'Rendering...' : 'Download PDF'}
+            <Download size={14} /> <span className="hidden sm:inline">{downloading ? 'Rendering...' : 'Download PDF'}</span><span className="sm:hidden">PDF</span>
           </button>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-white rounded-full transition-colors text-warmgray"
+            className="p-2.5 bg-gray-50 md:bg-transparent hover:bg-white rounded-full transition-colors text-warmgray shrink-0 border border-[#e6e3df] md:border-transparent"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar relative">
+      <div className="flex-1 overflow-y-auto w-full custom-scrollbar relative">
         {/* FORM SIDE */}
-        <div className="p-8 bg-white">
+        <div className="p-4 md:p-8 bg-white overflow-x-hidden">
           <form className="space-y-6" onSubmit={handleSubmit}>
 
-            <div className="flex gap-2 mb-8 overflow-x-auto custom-scrollbar pb-2">
+            <div className="flex gap-2 mb-6 md:mb-8 overflow-x-auto no-scrollbar pb-2 mx-1 snap-x">
               {['Client', 'Events', 'Timeline', 'Make Up', 'Deliverables'].map((step, idx) => (
                 <div
                   key={idx}
-                  className={`flex-1 min-w-[100px] text-center text-[10px] font-bold uppercase tracking-widest px-3 py-2 rounded-xl transition-all cursor-pointer ${currentStep === idx + 1 ? 'bg-charcoal text-white shadow-md' : 'text-warmgray bg-ivory/30 hover:bg-ivory/80'}`}
+                  className={`shrink-0 snap-center min-w-[110px] sm:flex-1 text-center text-[9px] md:text-[10px] font-bold uppercase tracking-widest px-3 py-2.5 rounded-xl transition-all cursor-pointer ${currentStep === idx + 1 ? 'bg-charcoal text-white shadow-md' : 'text-warmgray bg-ivory/30 hover:bg-ivory/80'}`}
                   onClick={() => setCurrentStep(idx + 1)}
                 >
-                  Step {idx + 1}: {step}
+                  <span className="opacity-60 block md:inline mb-0.5 md:mb-0 md:mr-1 text-[8px] md:text-[10px]">Step {idx + 1}</span>
+                  {step}
                 </div>
               ))}
             </div>
