@@ -51,7 +51,7 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="space-y-6 md:space-y-12 animate-in fade-in duration-700 px-4 md:px-0">
+    <div className="space-y-6 md:space-y-10 w-full animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
           <h1 className="font-serif text-4xl md:text-5xl text-charcoal">Registry Overview</h1>
@@ -63,7 +63,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <StatCard
           title="Global Photo Assets"
           value={stats.totalPhotos.toLocaleString()}
@@ -88,7 +88,7 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         {/* Recent Activity section */}
-        <div className="xl:col-span-2 bg-white rounded-[2.5rem] p-6 md:p-12 border border-ivory shadow-sm relative overflow-hidden group">
+        <div className="xl:col-span-2 bg-white rounded-3xl md:rounded-[2.5rem] p-5 md:p-12 border border-[#e6e3df]/60 shadow-sm relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-80 h-80 bg-ivory/40 rounded-full blur-[100px] -mr-40 -mt-40 group-hover:bg-beige/40 transition-all duration-1000"></div>
 
           <div className="relative z-10">
@@ -136,7 +136,7 @@ export default function Dashboard() {
         </div>
 
         {/* Studio Calendar View */}
-        <div className="bg-charcoal text-white rounded-[2.5rem] p-8 md:p-12 shadow-2xl relative overflow-hidden group">
+        <div className="bg-charcoal text-white rounded-3xl md:rounded-[2.5rem] p-6 md:p-12 shadow-2xl relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-full h-full bg-linear-to-br from-white/5 to-transparent pointer-events-none"></div>
           <div className="relative z-10 flex flex-col h-full">
             <h3 className="font-serif text-2xl md:text-3xl mb-12">Weekly Registry</h3>

@@ -77,7 +77,7 @@ export default function CRM() {
   });
 
   return (
-    <div className="space-y-6 md:space-y-10 px-4 md:px-0">
+    <div className="space-y-6 md:space-y-10 w-full animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
           <h1 className="font-serif text-3xl md:text-4xl text-charcoal">Team Alpha Photography</h1>

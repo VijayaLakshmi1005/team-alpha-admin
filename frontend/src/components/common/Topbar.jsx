@@ -103,15 +103,15 @@ export default function Topbar({ onMenuClick }) {
 
     return (
         <>
-            <header className="h-20 px-4 md:px-8 flex items-center justify-between border-b border-[#e6e3df] bg-white/80 backdrop-blur-md sticky top-0 z-30">
-                <div className="flex items-center gap-4">
+            <header className="h-16 md:h-20 px-3 md:px-8 flex items-center justify-between border-b border-[#e6e3df] bg-white/80 backdrop-blur-md sticky top-0 z-30 w-full">
+                <div className="flex items-center gap-2 md:gap-4 flex-1">
                     <button
                         onClick={onMenuClick}
-                        className="lg:hidden p-2 hover:bg-ivory rounded-xl transition-all text-charcoal shadow-sm border border-ivory bg-white"
+                        className="lg:hidden p-1.5 md:p-2 hover:bg-ivory rounded-xl transition-all text-charcoal shadow-sm border border-ivory bg-white"
                     >
-                        <Menu size={20} />
+                        <Menu size={18} className="md:w-5 md:h-5" />
                     </button>
-                    <div className="hidden md:flex items-center max-w-xl relative">
+                    <div className="hidden md:flex items-center flex-1 max-w-xl relative">
                         <Search className="absolute left-0 top-1/2 -translate-y-1/2 text-warmgray" size={18} />
                         <input
                             type="text"
@@ -124,19 +124,19 @@ export default function Topbar({ onMenuClick }) {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-4 md:gap-6">
-                    <div className="flex items-center gap-3 sm:gap-4 border-r border-[#e6e3df] pr-4 sm:pr-6">
+                <div className="flex items-center gap-2 md:gap-6">
+                    <div className="flex items-center gap-1 sm:gap-4 md:border-r border-[#e6e3df] pr-2 sm:pr-6">
 
                         {/* Notifications Module */}
                         <div className="relative" ref={notifRef}>
                             <button
                                 onClick={() => setShowNotifications(!showNotifications)}
-                                className="relative text-warmgray hover:text-charcoal transition-all p-2 hover:bg-ivory rounded-full group"
+                                className="relative text-warmgray hover:text-charcoal transition-all p-1.5 md:p-2 hover:bg-ivory rounded-full group shrink-0"
                                 title="Recent Activity & Notifications"
                             >
-                                <Bell size={20} className={unseenCount > 0 ? "text-charcoal group-hover:scale-110 transition-transform" : ""} strokeWidth={1.5} />
+                                <Bell size={18} className={`md:w-5 md:h-5 ${unseenCount > 0 ? "text-charcoal group-hover:scale-110 transition-transform" : ""}`} strokeWidth={1.5} />
                                 {unseenCount > 0 && (
-                                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white animate-pulse"></span>
+                                    <span className="absolute top-1 md:top-1.5 right-1 md:right-1.5 w-1.5 h-1.5 md:w-2 md:h-2 bg-red-500 rounded-full border border-white animate-pulse"></span>
                                 )}
                             </button>
 
@@ -214,34 +214,34 @@ export default function Topbar({ onMenuClick }) {
                             )}
                         </div>
 
-                        <div className="hidden sm:flex gap-4 border-l border-[#e6e3df] pl-4">
+                        <div className="flex gap-1 md:gap-4 md:border-l border-[#e6e3df] pl-1 md:pl-4">
                             <button
                                 onClick={() => window.open('https://www.instagram.com/teamalpha_crew/', '_blank')}
-                                className="text-warmgray hover:text-charcoal transition-all p-2 hover:bg-ivory rounded-full"
+                                className="text-warmgray hover:text-charcoal transition-all p-1.5 md:p-2 hover:bg-ivory rounded-full shrink-0"
                                 title="Visit Team Alpha Instagram"
                             >
-                                <Instagram size={20} strokeWidth={1.5} />
+                                <Instagram size={18} className="md:w-5 md:h-5" strokeWidth={1.5} />
                             </button>
                             <button
                                 onClick={() => window.open('https://wa.me/919110603953', '_blank')}
-                                className="text-warmgray hover:text-[#25D366] transition-all p-2 hover:bg-ivory rounded-full"
+                                className="text-warmgray hover:text-[#25D366] transition-all p-1.5 md:p-2 hover:bg-ivory rounded-full shrink-0"
                                 title="Contact Admin via WhatsApp"
                             >
-                                <MessageCircle size={20} strokeWidth={1.5} />
+                                <MessageCircle size={18} className="md:w-5 md:h-5" strokeWidth={1.5} />
                             </button>
                         </div>
                     </div>
 
                     <div
-                        className="flex items-center gap-3 group cursor-pointer"
+                        className="flex items-center gap-3 group cursor-pointer pl-1 shrink-0"
                         onClick={() => setShowProfileModal(true)}
                     >
                         <div className="text-right hidden sm:block">
                             <p className="text-sm font-bold text-charcoal">{adminProfile.name}</p>
                             <p className="text-[9px] text-warmgray uppercase tracking-[0.2em] font-bold">{adminProfile.role}</p>
                         </div>
-                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-ivory border border-[#e6e3df] flex items-center justify-center overflow-hidden transition-all group-hover:shadow-md group-hover:scale-105">
-                            <User size={24} className="text-warmgray translate-y-1" />
+                        <div className="w-8 h-8 md:w-12 md:h-12 rounded-[10px] md:rounded-2xl bg-ivory border border-[#e6e3df] flex items-center justify-center overflow-hidden transition-all group-hover:shadow-md group-hover:scale-105 shrink-0">
+                            <User size={18} className="md:w-6 md:h-6 text-warmgray translate-y-1" />
                         </div>
                     </div>
                 </div>

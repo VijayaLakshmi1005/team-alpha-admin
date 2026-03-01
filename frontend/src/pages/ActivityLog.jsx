@@ -69,7 +69,7 @@ export default function ActivityLog() {
     const unseenCount = notifications.filter(n => !n.isRead).length;
 
     return (
-        <div className="space-y-6 md:space-y-12 animate-in fade-in duration-700 px-4 md:px-0">
+        <div className="space-y-6 md:space-y-10 animate-in fade-in duration-700 w-full">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
                 <div>
                     <h1 className="font-serif text-4xl md:text-5xl text-charcoal">System Activity Log</h1>
@@ -92,7 +92,7 @@ export default function ActivityLog() {
                 </div>
             </div>
 
-            <div className="bg-white rounded-[2rem] border border-ivory shadow-sm overflow-hidden">
+            <div className="bg-white rounded-3xl md:rounded-4xl border border-[#e6e3df]/60 shadow-sm overflow-hidden w-full">
                 <div className="p-6 border-b border-[#e6e3df]/60 flex justify-between items-center bg-gray-50/50">
                     <h2 className="font-serif text-2xl text-charcoal flex items-center gap-3">
                         Recent Logs
@@ -111,8 +111,8 @@ export default function ActivityLog() {
                                 key={notif._id}
                                 className={`p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center gap-6 group transition-all duration-300 relative ${!notif.isRead ? 'bg-amber-50/30 shadow-[inset_4px_0_0_rgba(212,175,55,1)]' : 'bg-white hover:bg-gray-50'}`}
                             >
-                                <div className={`shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${notif.isRead ? 'bg-gray-100 text-warmgray' : 'bg-gold/20 text-gold-700 shadow-sm'}`}>
-                                    <Bell size={20} strokeWidth={1.5} />
+                                <div className={`shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl flex items-center justify-center transition-colors ${notif.isRead ? 'bg-gray-100 text-warmgray' : 'bg-gold/20 text-gold-700 shadow-sm'}`}>
+                                    <Bell size={18} className="md:w-5 md:h-5" strokeWidth={1.5} />
                                 </div>
 
                                 <div className="flex-1 pr-12 sm:pr-24">
