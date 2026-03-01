@@ -477,7 +477,7 @@ export default function LeadDetails({ lead: initialLead, onClose, onGenerateInvo
             <button
               onClick={onGenerateInvoice}
               className="relative overflow-hidden group flex-1 bg-charcoal text-white text-[11px] uppercase tracking-[0.2em] font-bold py-5 rounded-2xl hover:bg-mutedbrown hover:-translate-y-0.5 transition-all shadow-lg hover:shadow-xl active:translate-y-0 active:scale-95">
-              <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
+              <div className="absolute inset-0 w-full h-full bg-linear-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
               Generate Invoice
             </button>
             <button

@@ -87,7 +87,7 @@ export default function FollowUpList({ lead, onUpdate }) {
   };
 
   return (
-    <div className="bg-white rounded-[2rem] border border-[#e6e3df]/60 p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-shadow duration-500">
+    <div className="bg-white rounded-4xl border border-[#e6e3df]/60 p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-shadow duration-500">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h3 className="font-serif text-xl text-charcoal flex items-center gap-3">
@@ -107,7 +107,7 @@ export default function FollowUpList({ lead, onUpdate }) {
 
       <div className="space-y-8">
         {lead.followUpDate ? (
-          <div className="relative overflow-hidden bg-gradient-to-br from-ivory/40 to-white p-6 rounded-2xl border border-gold/20 flex justify-between items-center group transition-all duration-300 hover:border-gold/40">
+          <div className="relative overflow-hidden bg-linear-to-br from-ivory/40 to-white p-6 rounded-2xl border border-gold/20 flex justify-between items-center group transition-all duration-300 hover:border-gold/40">
             <div className="absolute top-0 right-0 w-32 h-32 bg-gold/5 rounded-full blur-3xl -mr-10 -mt-10"></div>
 
             <div className="flex items-center gap-5 relative z-10">
@@ -142,7 +142,7 @@ export default function FollowUpList({ lead, onUpdate }) {
                 disabled={loading}
                 className="relative overflow-hidden group/btn text-[10px] font-bold uppercase tracking-[0.2em] bg-charcoal text-white px-5 py-3 rounded-xl transition-all shadow-md hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 active:scale-95 flex-1 max-w-[120px]"
               >
-                <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite]"></div>
+                <div className="absolute inset-0 w-full h-full bg-linear-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite]"></div>
                 +3 Days
               </button>
               <button
@@ -187,7 +187,7 @@ export default function FollowUpList({ lead, onUpdate }) {
 
         <div className="pt-8 border-t border-[#e6e3df]/60">
           <h4 className="text-[10px] uppercase font-bold tracking-[0.2em] text-warmgray mb-5 flex items-center gap-2">
-            Quick Engagement <div className="flex-1 h-px bg-gradient-to-r from-[#e6e3df] to-transparent"></div>
+            Quick Engagement <div className="flex-1 h-px bg-linear-to-r from-[#e6e3df] to-transparent"></div>
           </h4>
           <div className="grid grid-cols-3 gap-4">
 

@@ -278,7 +278,7 @@ export default function CRM() {
       )}
 
       {showInvoiceForm && (
-        <div className="fixed inset-0 bg-charcoal/40 backdrop-blur-md z-[60] flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-charcoal/40 backdrop-blur-md z-60 flex items-center justify-center p-4">
           <InvoiceForm
             onClose={() => {
               setShowInvoiceForm(false);
