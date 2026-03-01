@@ -142,7 +142,7 @@ export default function Topbar({ onMenuClick }) {
 
                             {/* Notifications Dropdown Panel */}
                             {showNotifications && (
-                                <div className="absolute top-full right-0 mt-2 w-[320px] sm:w-[380px] bg-white rounded-3xl shadow-xl border border-[#e6e3df]/60 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                                <div className="absolute top-full -right-[65px] sm:right-0 mt-3 w-[290px] sm:w-[380px] bg-white rounded-3xl shadow-2xl border border-[#e6e3df]/60 overflow-hidden animate-in fade-in zoom-in-95 duration-200 z-50">
                                     <div className="p-4 border-b border-[#e6e3df]/60 flex justify-between items-center bg-gray-50/50">
                                         <h4 className="font-bold text-charcoal text-sm flex items-center gap-2">
                                             Activity Log
