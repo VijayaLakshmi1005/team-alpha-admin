@@ -109,13 +109,13 @@ export default function ActivityLog() {
                         {notifications.map((notif) => (
                             <div
                                 key={notif._id}
-                                className={`p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center gap-6 group transition-all duration-300 relative ${!notif.isRead ? 'bg-amber-50/30 shadow-[inset_4px_0_0_rgba(212,175,55,1)]' : 'bg-white hover:bg-gray-50'}`}
+                                className={`p-5 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 group transition-all duration-300 relative ${!notif.isRead ? 'bg-amber-50/30 shadow-[inset_4px_0_0_rgba(212,175,55,1)]' : 'bg-white hover:bg-gray-50'}`}
                             >
                                 <div className={`shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl flex items-center justify-center transition-colors ${notif.isRead ? 'bg-gray-100 text-warmgray' : 'bg-gold/20 text-gold-700 shadow-sm'}`}>
                                     <Bell size={18} className="md:w-5 md:h-5" strokeWidth={1.5} />
                                 </div>
 
-                                <div className="flex-1 pr-12 sm:pr-24">
+                                <div className="flex-1 w-full sm:pr-24">
                                     <div className="flex items-center gap-4 mb-2">
                                         <h3 className={`text-base sm:text-lg transition-colors ${notif.isRead ? 'text-charcoal/80 font-medium' : 'text-charcoal font-black'}`}>
                                             {notif.title}
@@ -132,12 +132,11 @@ export default function ActivityLog() {
                                     </div>
                                 </div>
 
-                                {/* Actions Container */}
-                                <div className="flex items-center gap-3 absolute right-6 top-6 sm:top-1/2 sm:-translate-y-1/2">
+                                <div className="mt-4 sm:mt-0 sm:absolute right-6 top-1/2 sm:-translate-y-1/2 flex items-center justify-end gap-3 w-full sm:w-auto">
                                     {!notif.isRead && (
                                         <button
                                             onClick={(e) => markAsRead(notif._id, e)}
-                                            className="w-10 h-10 rounded-full bg-white border border-[#e6e3df] text-warmgray hover:text-charcoal hover:shadow-md flex items-center justify-center transition-all bg-opacity-90 backdrop-blur-sm shadow-sm"
+                                            className="w-10 h-10 rounded-full bg-white border border-[#e6e3df] text-warmgray hover:text-charcoal hover:shadow-md flex items-center justify-center transition-all shadow-sm"
                                             title="Mark as seen"
                                         >
                                             <Check size={18} strokeWidth={2.5} />
@@ -145,7 +144,7 @@ export default function ActivityLog() {
                                     )}
                                     <button
                                         onClick={(e) => deleteNotification(notif._id, e)}
-                                        className="w-10 h-10 rounded-full bg-white border border-[#e6e3df] text-red-300 hover:text-red-500 hover:border-red-200 hover:bg-red-50 hover:shadow-md flex items-center justify-center transition-all bg-opacity-90 backdrop-blur-sm opacity-0 group-hover:opacity-100 focus:opacity-100 pr-0.5 shadow-sm"
+                                        className="w-10 h-10 rounded-full bg-white border border-[#e6e3df] text-red-300 hover:text-red-500 hover:border-red-200 hover:bg-red-50 hover:shadow-md flex items-center justify-center transition-all opacity-100 sm:opacity-0 group-hover:opacity-100 pr-0.5 shadow-sm"
                                         title="Delete this log"
                                     >
                                         <Trash2 size={16} strokeWidth={2} className="translate-x-[1px]" />
