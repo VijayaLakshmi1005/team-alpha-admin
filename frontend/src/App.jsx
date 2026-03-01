@@ -5,7 +5,8 @@ import Dashboard from "./pages/Dashboard";
 import CRM from "./pages/CRM";
 import SmartGallery from "./pages/SmartGallery";
 import Finance from "./pages/Finance";
-import CalendarPage from "./pages/Calendar"; // Named CalendarPage to avoid conflict with potential lib
+import CalendarPage from "./pages/Calendar";
+import ActivityLog from "./pages/ActivityLog";
 
 export default function App() {
   return (
@@ -31,6 +32,7 @@ export default function App() {
           <Route path="gallery" element={<SmartGallery />} />
           <Route path="finance" element={<Finance />} />
           <Route path="calendar" element={<CalendarPage />} />
+          <Route path="activity-log" element={<ActivityLog />} />
 
         </Route>
       </Routes>

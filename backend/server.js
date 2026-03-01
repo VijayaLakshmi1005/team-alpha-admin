@@ -14,6 +14,7 @@ import './models/Gallery.js';
 import './models/Finance.js';
 import './models/Event.js';
 import './models/Task.js';
+import './models/Notification.js';
 
 // Route Imports
 import leadRoutes from './routes/leadroutes.js';
@@ -23,6 +24,7 @@ import calendarRoutes from './routes/calendarRoutes.js';
 import photographerRoutes from './routes/photographerRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
 import invoiceRoutes from './routes/invoiceRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
 import { initCronJobs } from './services/ReminderService.js';
 dotenv.config({ path: path.join(__dirname, '.env') });
 
@@ -56,6 +58,7 @@ app.use('/api/photographers', photographerRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 const PORT = process.env.PORT || 5000;
 if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {

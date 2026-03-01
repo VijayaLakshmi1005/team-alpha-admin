@@ -2,6 +2,7 @@ import express from 'express';
 import Lead from '../models/Lead.js';
 import Task from '../models/Task.js';
 import Photographer from '../models/Photographer.js';
+import Notification from '../models/Notification.js';
 // import { sendAssignmentEmail, sendReminderEmail } from '../utils/emailService.js';
 
 const router = express.Router();
@@ -14,6 +15,13 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
     const lead = new Lead(req.body);
     await lead.save();
+
+    await Notification.create({
+        title: "New Lead Acquired",
+        description: `${lead.name} has been added to the registry as a new ${lead.status} lead.`,
+        type: "Lead"
+    });
+
     res.json(lead);
 });
 
@@ -35,6 +43,14 @@ router.patch('/:id', async (req, res) => {
         if (req.body.people && oldLead) {
             // Logic for checking changes in people assignment can stay if needed for logging, 
             // but we removed email sending as requested.
+        }
+
+        if (req.body.status && oldLead && oldLead.status !== req.body.status) {
+            await Notification.create({
+                title: "Lead Status Updated",
+                description: `${updatedLead.name}'s status was changed to ${req.body.status}.`,
+                type: "Lead"
+            });
         }
 
         res.json(updatedLead);
