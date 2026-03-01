@@ -47,7 +47,7 @@ export default function LeadForm({ onClose, onLeadAdded }) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-5 overflow-y-auto max-h-[80vh] custom-scrollbar">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="flex items-center gap-2 text-[10px] uppercase font-bold tracking-widest text-warmgray ml-1">

@@ -140,7 +140,7 @@ export default function Calendar() {
 
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-10 lg:gap-12">
                 {/* Calendar Grid */}
-                <div className="xl:col-span-2 bg-white rounded-[2.5rem] border border-ivory shadow-sm p-6 md:p-12 relative">
+                <div className="xl:col-span-2 bg-white rounded-3xl sm:rounded-[2.5rem] border border-ivory shadow-sm p-4 sm:p-6 md:p-12 relative overflow-hidden">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-12">
                         <div className="flex items-center gap-4">
                             <h3 className="font-serif text-3xl md:text-4xl min-w-[200px]">{format(currentDate, 'MMMM yyyy')}</h3>
@@ -181,13 +181,13 @@ export default function Calendar() {
 
                     <div className="grid grid-cols-7 gap-px bg-ivory/40 rounded-3xl overflow-hidden border border-ivory shadow-inner">
                         {weekDays.map(day => (
-                            <div key={day} className="bg-ivory/20 p-5 text-[10px] uppercase tracking-[0.2em] text-mutedbrown font-bold text-center border-b border-ivory">
+                            <div key={day} className="bg-ivory/20 py-2 sm:py-5 px-1 sm:px-5 text-[7px] sm:text-[10px] uppercase tracking-[0.1em] sm:tracking-[0.2em] text-mutedbrown font-bold text-center border-b border-ivory">
                                 {day}
                             </div>
                         ))}
 
                         {blanks.map((_, i) => (
-                            <div key={`blank-${i}`} className="bg-ivory/5 min-h-[100px] md:min-h-[140px] border-r border-b border-ivory/30"></div>
+                            <div key={`blank-${i}`} className="bg-ivory/5 min-h-[60px] sm:min-h-[100px] md:min-h-[140px] border-r border-b border-ivory/30"></div>
                         ))}
 
                         {daysInMonth.map((day, i) => {
@@ -202,10 +202,10 @@ export default function Calendar() {
                                         // setSelectedEvent({ start: day.toISOString(), end: day.toISOString() }); 
                                         // setIsModalOpen(true);
                                     }}
-                                    className={`bg-white min-h-[100px] md:min-h-[140px] p-2 md:p-3 hover:bg-ivory/10 transition-all group relative cursor-pointer border-r border-b border-ivory/30 ${isTodayDate ? 'bg-ivory/10' : ''}`}
+                                    className={`bg-white min-h-[60px] sm:min-h-[100px] md:min-h-[140px] p-1 sm:p-2 md:p-3 hover:bg-ivory/10 transition-all group relative cursor-pointer border-r border-b border-ivory/30 ${isTodayDate ? 'bg-ivory/10' : ''}`}
                                 >
                                     <div className="flex items-center justify-between mb-2">
-                                        <span className={`text-[11px] font-bold tracking-widest ${isTodayDate ? 'bg-charcoal text-white w-7 h-7 flex items-center justify-center rounded-xl shadow-lg' : 'text-warmgray group-hover:text-charcoal'}`}>
+                                        <span className={`text-[9px] sm:text-[11px] font-bold tracking-widest flex items-center justify-center rounded-xl ${isTodayDate ? 'bg-charcoal text-white w-5 h-5 sm:w-7 sm:h-7 shadow-lg' : 'text-warmgray group-hover:text-charcoal'}`}>
                                             {format(day, 'dd')}
                                         </span>
                                         {dayEvents.length > 0 && <div className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse"></div>}
@@ -216,7 +216,7 @@ export default function Calendar() {
                                             <div
                                                 key={event._id}
                                                 onClick={(e) => { e.stopPropagation(); setSelectedEvent(event); setIsModalOpen(true); }}
-                                                className={`p-2 rounded-xl text-[9px] border-l-2 leading-tight shadow-sm hover:scale-[1.02] transition-transform ${event.type === 'Wedding' ? 'bg-charcoal text-white border-gold' :
+                                                className={`p-1 sm:p-2 rounded-lg sm:rounded-xl text-[7px] sm:text-[9px] border-l-2 leading-tight shadow-sm hover:scale-[1.02] transition-transform ${event.type === 'Wedding' ? 'bg-charcoal text-white border-gold' :
                                                     event.type === 'Pre-Wedding' ? 'bg-ivory text-charcoal border-mutedbrown border' :
                                                         'bg-gray-50 text-gray-600 border-gray-300'
                                                     }`}
@@ -235,7 +235,7 @@ export default function Calendar() {
                 {/* Sidebar */}
                 <div className="space-y-8 md:space-y-10">
                     {/* Upcoming Registry */}
-                    <div className="bg-white rounded-[2.5rem] border border-ivory shadow-sm p-8 md:p-10 relative overflow-hidden group">
+                    <div className="bg-white rounded-3xl sm:rounded-[2.5rem] border border-ivory shadow-sm p-6 sm:p-8 md:p-10 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-ivory rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-beige/50 transition-colors"></div>
                         <h4 className="font-serif text-2xl md:text-3xl mb-10 relative z-10">Upcoming Registry</h4>
 
@@ -281,7 +281,7 @@ export default function Calendar() {
                     </div>
 
                     {/* Team Sync Card */}
-                    <div className="bg-charcoal text-white rounded-[2.5rem] p-8 md:p-10 shadow-2xl relative overflow-hidden">
+                    <div className="bg-charcoal text-white rounded-3xl sm:rounded-[2.5rem] p-6 sm:p-8 md:p-10 shadow-2xl relative overflow-hidden">
                         <div className="absolute inset-0 bg-linear-to-tr from-white/5 to-transparent pointer-events-none"></div>
                         <h4 className="font-serif text-2xl md:text-3xl mb-6 relative z-10">Team Sync</h4>
                         <p className="text-[11px] text-white/50 leading-relaxed mb-10 font-medium relative z-10">

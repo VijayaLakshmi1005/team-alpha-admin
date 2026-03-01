@@ -130,7 +130,7 @@ export default function LeadDetails({ lead: initialLead, onClose, onGenerateInvo
     <div className="fixed inset-0 bg-charcoal/20 backdrop-blur-md z-50 flex justify-end">
       <div className="w-full max-w-xl bg-ivory h-screen overflow-y-auto shadow-2xl animate-in slide-in-from-right duration-500 flex flex-col">
         {/* Header */}
-        <div className="sticky top-0 bg-ivory/80 backdrop-blur-md px-6 md:px-10 py-8 border-b border-[#e6e3df] flex justify-between items-center z-10">
+        <div className="sticky top-0 bg-ivory/80 backdrop-blur-md px-4 sm:px-6 md:px-10 py-6 md:py-8 border-b border-[#e6e3df] flex justify-between items-center z-10 w-full">
           <div className="flex items-center gap-5">
             <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center border border-[#e6e3df] shadow-sm font-serif text-2xl text-mutedbrown uppercase">
               {(lead.name || "?")[0]}
@@ -199,10 +199,10 @@ export default function LeadDetails({ lead: initialLead, onClose, onGenerateInvo
           </div>
         </div>
 
-        <div className="p-6 md:p-10 space-y-12 flex-1">
+        <div className="p-4 sm:p-6 md:p-10 space-y-8 md:space-y-12 flex-1">
           {/* Quick Info Grid */}
           {/* Quick Info Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm bg-white/50 p-6 rounded-3xl border border-ivory">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 text-sm bg-white/50 p-4 md:p-6 rounded-3xl border border-ivory">
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-warmgray">
                 <Mail size={16} strokeWidth={1.5} />
@@ -335,7 +335,7 @@ export default function LeadDetails({ lead: initialLead, onClose, onGenerateInvo
               </div>
 
               {isEditing ? (
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
                     <label className="text-[9px] text-warmgray uppercase tracking-wider font-bold">Total (₹)</label>
                     <input
@@ -368,7 +368,7 @@ export default function LeadDetails({ lead: initialLead, onClose, onGenerateInvo
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center gap-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
                   <div>
                     <p className="text-[10px] text-warmgray uppercase tracking-wider font-bold">Total Value</p>
                     <p className="font-serif text-xl text-charcoal">₹{(lead.totalAmount || 0).toLocaleString()}</p>
@@ -472,7 +472,7 @@ export default function LeadDetails({ lead: initialLead, onClose, onGenerateInvo
 
 
         {/* Footer Actions */}
-        <div className="p-6 md:p-8 border-t border-[#e6e3df]/60 bg-white/80 backdrop-blur-xl sticky bottom-0 rounded-b-2xl z-20 shadow-[0_-10px_40px_-20px_rgba(0,0,0,0.1)]">
+        <div className="p-4 sm:p-6 md:p-8 border-t border-[#e6e3df]/60 bg-white/80 backdrop-blur-xl sticky bottom-0 rounded-b-2xl z-20 shadow-[0_-10px_40px_-20px_rgba(0,0,0,0.1)]">
           <div className="flex gap-4">
             <button
               onClick={onGenerateInvoice}
