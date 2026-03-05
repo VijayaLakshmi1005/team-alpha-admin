@@ -10,13 +10,10 @@ const invoiceSchema = new mongoose.Schema({
         dateLocation: String,
         price: Number
     }],
-    makeup: [{
-        eventName: String,
-        details: String,
-    }],
-    makeupPrice: { type: Number, default: 0 },
     deliverables: { type: [String], default: ['All RAW Data', '35 Pre wedding Edited Photos', 'Pre wedding cinematic Video (3 min max)', 'Wedding edited images', '2 Premium Wedding Albums 15*24(40 pages)', 'Wedding Cinematography Video 5 Min', 'Traditional Video Edited 2 Hrs max', 'Reels'] },
     deliverablesPrice: { type: Number, default: 0 },
+    discount: { type: Number, default: 0 },
+    extraCharges: { type: Number, default: 0 },
     timeline: [{
         deliverable: String,
         time: String

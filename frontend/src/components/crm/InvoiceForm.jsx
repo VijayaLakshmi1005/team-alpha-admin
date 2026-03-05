@@ -15,16 +15,11 @@ export default function InvoiceForm({ onClose, initialClientName = "" }) {
     { eventName: "Pre Wedding", services: "Candid Photography\nCinematography\nDrone Coverage", equipment: "SONY A7R4\nSONY FX3\nDJI AIR 3S", dateLocation: "Feb 2026", price: 35000 },
     { eventName: "Home Rituals\nBride & Groom", services: "Traditional Photography", equipment: "SONY M4", dateLocation: "9th or 10th\nApril 2026", price: 16000 },
     { eventName: "Haldi\nBride & Groom", services: "Traditional Photography", equipment: "SONY M4", dateLocation: "9th or 10th\nApril 2026", price: 16000 },
+    { eventName: "Sangeeth", services: "Candid Photography\nTraditional Videography\nCinematography", equipment: "SONY A7R4\nSONY M4\nSONY FX3", dateLocation: "10th April 2026", price: 45000 },
     { eventName: "Reception", services: "Candid Photography\nTraditional Photography\nTraditional Videography X2\nCinematography\nDrone Coverage", equipment: "SONY A7R4\nSONY M4\nSONY FX-30\nSONY FX3\nDJI AIR 3S", dateLocation: "11th April 2026", price: 70000 },
     { eventName: "Muhurtham", services: "Candid Photography\nTraditional Photography\nTraditional Videography X2\nCinematography\nDrone Coverage", equipment: "SONY A7R4\nSONY M4\nSONY FX-30\nSONY FX3\nDJI AIR 3S", dateLocation: "12th April 2026", price: 70000 }
   ]);
 
-  const [makeup, setMakeup] = useState([
-    { eventName: "Prewedding", details: "2 looks / 2 Hairstyle" },
-    { eventName: "Reception", details: "1 look / 1 Hairstyle" },
-    { eventName: "Muhurtam", details: "1 look / 1 Hairstyle / Saree draping" }
-  ]);
-  const [makeupPrice, setMakeupPrice] = useState(60000);
 
   const [timeline, setTimeline] = useState([
     { deliverable: "Soft Copies (All photos)", time: "7 Days" },
@@ -44,6 +39,8 @@ export default function InvoiceForm({ onClose, initialClientName = "" }) {
     "Reels"
   ]);
   const [deliverablesPrice, setDeliverablesPrice] = useState(40000);
+  const [discount, setDiscount] = useState(0);
+  const [extraCharges, setExtraCharges] = useState(0);
 
   const [coverImage, setCoverImage] = useState("");
 
@@ -53,7 +50,7 @@ export default function InvoiceForm({ onClose, initialClientName = "" }) {
   const previewRef = useRef(null);
 
   const eventsTotal = useMemo(() => events.reduce((sum, ev) => sum + (Number(ev.price) || 0), 0), [events]);
-  const grandTotal = eventsTotal + Number(makeupPrice) + Number(deliverablesPrice);
+  const grandTotal = eventsTotal + Number(deliverablesPrice) + Number(extraCharges) - Number(discount);
 
   const handleDownload = async () => {
     if (!previewRef.current) return;
@@ -100,11 +97,11 @@ export default function InvoiceForm({ onClose, initialClientName = "" }) {
         clientName,
         invoiceDate,
         events,
-        makeup,
-        makeupPrice,
         timeline,
         deliverables,
         deliverablesPrice,
+        discount,
+        extraCharges,
         total: grandTotal,
         status: 'Pending'
       });
@@ -163,7 +160,7 @@ export default function InvoiceForm({ onClose, initialClientName = "" }) {
           <form className="space-y-6" onSubmit={handleSubmit}>
 
             <div className="flex gap-2 mb-6 md:mb-8 overflow-x-auto no-scrollbar pb-2 mx-1 snap-x">
-              {['Client', 'Events', 'Timeline', 'Make Up', 'Deliverables'].map((step, idx) => (
+              {['Client', 'Events', 'Timeline', 'Deliverables'].map((step, idx) => (
                 <div
                   key={idx}
                   className={`shrink-0 snap-center min-w-[110px] sm:flex-1 text-center text-[9px] md:text-[10px] font-bold uppercase tracking-widest px-3 py-2.5 rounded-xl transition-all cursor-pointer ${currentStep === idx + 1 ? 'bg-charcoal text-white shadow-md' : 'text-warmgray bg-ivory/30 hover:bg-ivory/80'}`}
@@ -264,30 +261,6 @@ export default function InvoiceForm({ onClose, initialClientName = "" }) {
             {currentStep === 4 && (
               <section className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
                 <div className="flex justify-between items-center pb-2 border-b border-ivory">
-                  <h3 className="text-xs uppercase font-bold tracking-widest text-charcoal">Make Up Options</h3>
-                </div>
-                <div className="space-y-3">
-                  {makeup.map((mu, i) => (
-                    <div key={i} className="flex gap-3">
-                      <input className="w-1/3 bg-white border border-[#e6e3df] rounded-xl px-3 py-2 text-xs" placeholder="Event" value={mu.eventName} onChange={e => { const m = [...makeup]; m[i].eventName = e.target.value; setMakeup(m); }} />
-                      <input className="flex-1 bg-white border border-[#e6e3df] rounded-xl px-3 py-2 text-xs" placeholder="Details (e.g. 2 looks)" value={mu.details} onChange={e => { const m = [...makeup]; m[i].details = e.target.value; setMakeup(m); }} />
-                      <button type="button" onClick={() => setMakeup(makeup.filter((_, idx) => idx !== i))} className="text-warmgray hover:text-red-500 p-2"><Trash2 size={16} /></button>
-                    </div>
-                  ))}
-                  <button type="button" onClick={() => setMakeup([...makeup, { eventName: '', details: '' }])} className="text-[10px] font-bold uppercase tracking-widest text-mutedbrown hover:underline">
-                    + Add Makeup Detail
-                  </button>
-                  <div className="flex items-center justify-end gap-3 mt-4 bg-ivory/30 p-4 rounded-xl">
-                    <span className="text-xs font-bold uppercase tracking-widest">Makeup Total (₹)</span>
-                    <input type="number" className="bg-white border text-right border-[#e6e3df] rounded-xl px-4 py-2 text-sm w-32 font-bold focus:outline-mutedbrown" value={makeupPrice} onChange={e => setMakeupPrice(Number(e.target.value))} />
-                  </div>
-                </div>
-              </section>
-            )}
-
-            {currentStep === 5 && (
-              <section className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-                <div className="flex justify-between items-center pb-2 border-b border-ivory">
                   <h3 className="text-xs uppercase font-bold tracking-widest text-charcoal">Deliverables (Album & Editing)</h3>
                 </div>
                 <div className="space-y-3">
@@ -303,9 +276,23 @@ export default function InvoiceForm({ onClose, initialClientName = "" }) {
                   </button>
                 </div>
 
-                <div className="flex items-center justify-end gap-3 bg-ivory/30 p-4 rounded-xl mt-4">
-                  <span className="text-xs font-bold uppercase tracking-widest">Deliverables Total (₹)</span>
-                  <input type="number" className="bg-white border text-right border-[#e6e3df] rounded-xl px-4 py-2 text-sm w-32 font-bold focus:outline-mutedbrown" value={deliverablesPrice} onChange={e => setDeliverablesPrice(Number(e.target.value))} />
+                <div className="flex flex-col gap-3 mt-4">
+                  <div className="flex items-center justify-end gap-3 bg-ivory/30 p-4 rounded-xl">
+                    <span className="text-xs font-bold uppercase tracking-widest">Deliverables Total (₹)</span>
+                    <input type="number" className="bg-white border text-right border-[#e6e3df] rounded-xl px-4 py-2 text-sm w-32 font-bold focus:outline-mutedbrown" value={deliverablesPrice} onChange={e => setDeliverablesPrice(Number(e.target.value))} />
+                  </div>
+                  <div className="flex items-center justify-end gap-3 bg-red-50/50 p-4 rounded-xl border border-red-100">
+                    <span className="text-xs font-bold uppercase tracking-widest text-red-600">Discount (₹)</span>
+                    <input type="number" className="bg-white border text-right border-red-200 rounded-xl px-4 py-2 text-sm w-32 font-bold focus:outline-red-400 focus:ring-1 focus:ring-red-400" value={discount} onChange={e => setDiscount(Number(e.target.value))} placeholder="0" />
+                  </div>
+                  <div className="flex items-center justify-end gap-3 bg-blue-50/50 p-4 rounded-xl border border-blue-100">
+                    <span className="text-xs font-bold uppercase tracking-widest text-blue-700">Extra Charges / Taxes (₹)</span>
+                    <input type="number" className="bg-white border text-right border-blue-200 rounded-xl px-4 py-2 text-sm w-32 font-bold focus:outline-blue-400 focus:ring-1 focus:ring-blue-400" value={extraCharges} onChange={e => setExtraCharges(Number(e.target.value))} placeholder="0" />
+                  </div>
+                  <div className="flex items-center justify-end gap-3 bg-charcoal text-white p-4 rounded-xl mt-2 shadow-md">
+                    <span className="text-[10px] uppercase tracking-widest opacity-80">Automatic Grand Total</span>
+                    <span className="text-lg font-bold ml-2">₹ {grandTotal.toLocaleString('en-IN')}</span>
+                  </div>
                 </div>
               </section>
             )}
@@ -320,7 +307,7 @@ export default function InvoiceForm({ onClose, initialClientName = "" }) {
                   <ChevronLeft size={18} /> Back
                 </button>
               )}
-              {currentStep < 5 ? (
+              {currentStep < 4 ? (
                 <button
                   type="button"
                   onClick={() => setCurrentStep(prev => prev + 1)}
@@ -344,7 +331,7 @@ export default function InvoiceForm({ onClose, initialClientName = "" }) {
         {/* HIDDEN PREVIEW ELEMENT FOR PDF GENERATION */}
         <div className="fixed top-0 left-0 bg-white" style={{ width: '794px', zIndex: -9999, opacity: 0.01, pointerEvents: 'none' }}>
           <div ref={previewRef}>
-            <EstimatePreview data={{ clientName, events, makeup, makeupPrice, timeline, deliverables, deliverablesPrice, total: grandTotal, coverImage }} />
+            <EstimatePreview data={{ clientName, events, timeline, deliverables, deliverablesPrice, discount, extraCharges, total: grandTotal, coverImage }} />
           </div>
         </div>
       </div>

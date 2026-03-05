@@ -6,13 +6,14 @@ const gallerySchema = new mongoose.Schema({
     url: { type: String, required: true },
     link: { type: String }, // Used specifically for Drive links
     type: { type: String, enum: ['image', 'video', 'drive'], default: 'image' },
-    category: { type: String, enum: ['Engagement', 'Wedding', 'Pre-wedding', 'Haldi', 'Reception', 'Other'], default: 'Wedding' },
+    category: { type: String, enum: ['Engagement', 'Wedding', 'Pre-wedding', 'Haldi', 'Reception', 'Sangeeth', 'Other'], default: 'Wedding' },
     subCategory: { type: String }, // e.g., 'Candid', 'Traditional', 'Drone'
     tags: [{ type: String }],
     width: { type: Number },
     height: { type: Number },
     isFavorite: { type: Boolean, default: false },
     isSelected: { type: Boolean, default: false },
+    isCover: { type: Boolean, default: false },
     uploadedAt: { type: Date, default: Date.now }
 }, { timestamps: true });
 

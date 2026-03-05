@@ -161,25 +161,8 @@ const EstimatePreview = forwardRef(({ data }, ref) => {
                 </table>
             </div>
 
-            {/* PAGE 4: MAKE UP & DELIVERABLES */}
+            {/* PAGE 4: DELIVERABLES */}
             <div className={pageStyle + " pdf-page px-16 py-24 flex flex-col items-center"}>
-                <h3 className="font-bold text-md uppercase mb-4 tracking-wide">MAKE UP</h3>
-                <table className="w-[80%] border-collapse border border-gray-800 text-center text-[13px] font-bold mb-20">
-                    <tbody>
-                        {data.makeup?.map((mu, i) => (
-                            <tr key={i}>
-                                <td className="border border-gray-800 py-3 w-1/3">{mu.eventName}</td>
-                                <td className="border border-gray-800 py-3 w-2/3">{mu.details}</td>
-                            </tr>
-                        ))}
-                        <tr>
-                            <td colSpan="2" className="bg-black text-white py-3 uppercase tracking-widest">
-                                {(data.makeupPrice || 0).toLocaleString('en-IN')}.00 INR ({numberToIndianWords(data.makeupPrice || 0)})
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-
                 <h3 className="font-bold text-2xl uppercase mb-4 tracking-wide mt-10">DELIVERABLES</h3>
                 <table className="w-[95%] border-collapse border border-gray-800 text-center text-[13px] font-bold mb-4">
                     <tbody>
@@ -196,6 +179,20 @@ const EstimatePreview = forwardRef(({ data }, ref) => {
                                 ALBUM AND EDITING = {(data.deliverablesPrice || 0).toLocaleString('en-IN')} INR ({numberToIndianWords(data.deliverablesPrice || 0)})
                             </td>
                         </tr>
+                        {Number(data.extraCharges || 0) > 0 && (
+                            <tr>
+                                <td colSpan="2" className="border border-gray-800 bg-blue-50 py-3 uppercase text-[#333]">
+                                    EXTRA CHARGES / TAXES = (+){Number(data.extraCharges).toLocaleString('en-IN')} INR
+                                </td>
+                            </tr>
+                        )}
+                        {Number(data.discount || 0) > 0 && (
+                            <tr>
+                                <td colSpan="2" className="border border-gray-800 bg-red-50 py-3 uppercase text-red-600">
+                                    DISCOUNT = (-){Number(data.discount).toLocaleString('en-IN')} INR
+                                </td>
+                            </tr>
+                        )}
                         <tr>
                             <td colSpan="2" className="bg-black text-white py-4 text-sm leading-relaxed uppercase tracking-wider">
                                 GRAND TOTAL = {(data.total || 0).toLocaleString('en-IN')} INR<br />

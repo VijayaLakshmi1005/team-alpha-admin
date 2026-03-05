@@ -86,10 +86,10 @@ export default function CRM() {
         <button
           onClick={() => {
             if (activeTab === 'invoices') setShowInvoiceForm(true);
-            else if (activeTab === 'team') setShowLeadForm(false);
+            else if (activeTab === 'team' || activeTab === 'tasks') setShowLeadForm(false);
             else setShowLeadForm(true);
           }}
-          className={`w-full md:w-auto flex items-center justify-center gap-2 bg-charcoal text-white px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest hover:bg-mutedbrown hover:-translate-y-1 transition-all duration-500 shadow-xl hover:shadow-2xl active:scale-95 ${activeTab === 'team' ? 'hidden' : ''}`}
+          className={`w-full md:w-auto flex items-center justify-center gap-2 bg-charcoal text-white px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest hover:bg-mutedbrown hover:-translate-y-1 transition-all duration-500 shadow-xl hover:shadow-2xl active:scale-95 ${activeTab === 'team' || activeTab === 'tasks' ? 'hidden' : ''}`}
         >
           <Plus size={16} />
           {activeTab === 'invoices' ? 'New Invoice' : 'Add New Lead'}

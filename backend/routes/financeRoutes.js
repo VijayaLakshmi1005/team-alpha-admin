@@ -1,6 +1,7 @@
 import express from 'express';
 import Finance from '../models/Finance.js';
 import Invoice from '../models/Invoice.js';
+import Lead from '../models/Lead.js';
 
 const router = express.Router();
 
@@ -9,7 +10,28 @@ router.get('/overview', async (req, res) => {
     try {
         // Calculate Total Sales (Sum of Paid Invoices)
         const paidInvoices = await Invoice.find({ status: 'Paid' });
-        const annualSales = paidInvoices.reduce((sum, process) => sum + (process.total || 0), 0);
+        const invoiceSales = paidInvoices.reduce((sum, process) => sum + (process.total || 0), 0);
+
+        const activeLeads = await Lead.find({ paymentStatus: { $in: ['Deposit Paid', 'Paid'] } });
+        const leadSales = activeLeads.reduce((sum, lead) => {
+            if (lead.paymentStatus === 'Paid') return sum + (lead.totalAmount || 0);
+            if (lead.paymentStatus === 'Deposit Paid') return sum + (lead.depositAmount || 0);
+            return sum;
+        }, 0);
+
+        const annualSales = invoiceSales + leadSales;
+
+        const pendingInvoices = await Invoice.find({ status: { $ne: 'Paid' } });
+        const pendingInvoiceAmt = pendingInvoices.reduce((sum, i) => sum + (i.total || 0), 0);
+
+        const pendingLeads = await Lead.find({ paymentStatus: { $in: ['Unpaid', 'Deposit Paid'] } });
+        const pendingLeadAmt = pendingLeads.reduce((sum, lead) => {
+            if (lead.paymentStatus === 'Deposit Paid') return sum + ((lead.totalAmount || 0) - (lead.depositAmount || 0));
+            if (lead.paymentStatus === 'Unpaid') return sum + (lead.totalAmount || 0);
+            return sum;
+        }, 0);
+
+        const pendingRevenue = pendingInvoiceAmt + pendingLeadAmt;
 
         // Calculate Total Expenses (Sum of Finance type 'expense')
         const expensesData = await Finance.find({ type: 'expense' });
@@ -21,7 +43,8 @@ router.get('/overview', async (req, res) => {
         res.json({
             annualSales,
             annualProfit,
-            expenses: totalExpenses
+            expenses: totalExpenses,
+            pendingRevenue
         });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -86,16 +109,22 @@ router.post('/', async (req, res) => {
 // Get Recent Transactions (Combined Invoices & Expenses)
 router.get('/transactions', async (req, res) => {
     try {
-        // Fetch last 5 invoices (Paid or Pending)
+        // Fetch last 10 invoices (Paid or Pending)
         const recentInvoices = await Invoice.find()
             .sort({ invoiceDate: -1 })
-            .limit(5)
+            .limit(10)
             .lean();
 
-        // Fetch last 5 expenses
+        // Fetch last 10 expenses
         const recentExpenses = await Finance.find({ type: 'expense' })
             .sort({ date: -1 })
-            .limit(5)
+            .limit(10)
+            .lean();
+
+        // Fetch last 10 leads with deposit/paid
+        const recentLeads = await Lead.find({ paymentStatus: { $in: ['Deposit Paid', 'Paid'] } })
+            .sort({ createdAt: -1 })
+            .limit(10)
             .lean();
 
         // Combine and sort
@@ -104,7 +133,8 @@ router.get('/transactions', async (req, res) => {
                 id: inv._id,
                 name: inv.clientName,
                 category: 'Invoice Payment',
-                amount: inv.total,
+                amount: inv.status === 'Paid' ? (inv.total || 0) : 0,
+                pendingAmount: inv.status === 'Paid' ? 0 : (inv.total || 0),
                 date: inv.invoiceDate,
                 type: 'income',
                 status: inv.status || 'Pending'
@@ -113,10 +143,20 @@ router.get('/transactions', async (req, res) => {
                 id: exp._id,
                 name: exp.category || 'Expense',
                 category: exp.description || 'Operational Expense',
-                amount: exp.amount,
+                amount: exp.amount || 0,
                 date: exp.date,
                 type: 'expense',
                 status: exp.status || 'Paid'
+            })),
+            ...recentLeads.map(lead => ({
+                id: lead._id,
+                name: lead.name + ' (Lead)',
+                category: 'Client Payment',
+                amount: lead.paymentStatus === 'Paid' ? (lead.totalAmount || 0) : (lead.paymentStatus === 'Deposit Paid' ? (lead.depositAmount || 0) : 0),
+                pendingAmount: lead.paymentStatus === 'Paid' ? 0 : ((lead.totalAmount || 0) - (lead.paymentStatus === 'Deposit Paid' ? (lead.depositAmount || 0) : 0)),
+                date: lead.createdAt || new Date(),
+                type: 'income',
+                status: lead.paymentStatus
             }))
         ].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
 
@@ -174,8 +214,33 @@ router.delete('/expense/:id', async (req, res) => {
 // Get Payment Plans (Pending Invoices)
 router.get('/pending-payments', async (req, res) => {
     try {
-        const pending = await Invoice.find({ status: { $ne: 'Paid' } }).sort({ invoiceDate: 1 });
-        res.json(pending);
+        const pendingInvoices = await Invoice.find({ status: { $ne: 'Paid' } }).sort({ invoiceDate: -1 }).lean();
+        const pendingLeads = await Lead.find({ paymentStatus: { $in: ['Unpaid', 'Deposit Paid'] } }).sort({ createdAt: -1 }).lean();
+
+        const formatted = [
+            ...pendingInvoices.map(inv => ({
+                id: inv._id,
+                name: inv.clientName,
+                type: 'Invoice',
+                total: inv.total || 0,
+                paid: 0,
+                pending: inv.total || 0,
+                status: 'Unpaid',
+                date: inv.invoiceDate
+            })),
+            ...pendingLeads.map(lead => ({
+                id: lead._id,
+                name: lead.name,
+                type: 'Lead',
+                total: lead.totalAmount || 0,
+                paid: lead.paymentStatus === 'Deposit Paid' ? (lead.depositAmount || 0) : 0,
+                pending: (lead.totalAmount || 0) - (lead.paymentStatus === 'Deposit Paid' ? (lead.depositAmount || 0) : 0),
+                status: lead.paymentStatus,
+                date: lead.createdAt
+            }))
+        ].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        res.json(formatted);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

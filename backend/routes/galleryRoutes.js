@@ -18,19 +18,24 @@ const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: 'team-alpha-gallery',
-        allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'gif', 'mp4'],
+        resource_type: 'auto'
     },
 });
 
 const upload = multer({ storage });
 
-router.post('/upload', upload.single('file'), (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({ message: 'No file uploaded' });
-    }
-    // multer-storage-cloudinary attaches 'path' as the Cloudinary URL
-    const fileUrl = req.file.path;
-    res.json({ url: fileUrl });
+router.post('/upload', (req, res, next) => {
+    upload.single('file')(req, res, function (err) {
+        if (err) {
+            console.error("Multer upload error full details:", JSON.stringify(err, null, 2));
+            return res.status(500).json({ error: err.message || JSON.stringify(err) || 'Upload failed' });
+        }
+        if (!req.file) {
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+        // multer-storage-cloudinary attaches 'path' as the Cloudinary URL
+        res.json({ url: req.file.path });
+    });
 });
 
 router.get('/', async (req, res) => {
@@ -56,6 +61,24 @@ router.patch('/:id/select', async (req, res) => {
     item.isSelected = !item.isSelected;
     await item.save();
     res.json(item);
+});
+
+router.patch('/:id/cover', async (req, res) => {
+    try {
+        const item = await Gallery.findById(req.params.id);
+        if (!item) return res.status(404).json({ error: 'Item not found' });
+
+        await Gallery.updateMany(
+            { clientFolder: item.clientFolder, category: item.category },
+            { $set: { isCover: false } }
+        );
+
+        item.isCover = true;
+        await item.save();
+        res.json({ message: 'Cover updated', item });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to update cover' });
+    }
 });
 
 router.patch('/rename-folder', async (req, res) => {
@@ -106,6 +129,31 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+router.delete('/folder/:folderName', async (req, res) => {
+    try {
+        const folderName = req.params.folderName;
+        const query = folderName === 'Default Client'
+            ? { $or: [{ clientFolder: folderName }, { clientFolder: { $exists: false } }, { clientFolder: null }] }
+            : { clientFolder: folderName };
+        await Gallery.deleteMany(query);
+        res.json({ message: 'Folder deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to delete folder' });
+    }
+});
 
+router.delete('/folder/:folderName/category/:categoryName', async (req, res) => {
+    try {
+        const { folderName, categoryName } = req.params;
+        const folderQuery = folderName === 'Default Client'
+            ? { $in: ['Default Client', null] }
+            : folderName;
+
+        await Gallery.deleteMany({ clientFolder: folderQuery, category: categoryName });
+        res.json({ message: 'Category deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to delete category' });
+    }
+});
 
 export default router;

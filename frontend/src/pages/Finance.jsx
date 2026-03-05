@@ -4,9 +4,10 @@ import { IndianRupee, TrendingUp, TrendingDown, ArrowUpRight, Filter, Download, 
 import toast from "react-hot-toast";
 
 export default function Finance() {
-    const [stats, setStats] = useState({ annualSales: 0, annualProfit: 0, expenses: 0 });
+    const [stats, setStats] = useState({ annualSales: 0, annualProfit: 0, expenses: 0, pendingRevenue: 0 });
     const [transactions, setTransactions] = useState([]);
     const [allocation, setAllocation] = useState([]);
+    const [pendingPayments, setPendingPayments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showExpenseModal, setShowExpenseModal] = useState(false);
     const [newExpense, setNewExpense] = useState({ title: "", amount: "", category: "Operational" });
@@ -19,14 +20,16 @@ export default function Finance() {
 
     const fetchData = async () => {
         try {
-            const [overviewRes, txRes, allocRes] = await Promise.all([
+            const [overviewRes, txRes, allocRes, pendingRes] = await Promise.all([
                 axios.get(`${import.meta.env.VITE_API_URL || ""}/api/finance/overview`),
                 axios.get(`${import.meta.env.VITE_API_URL || ""}/api/finance/transactions`),
-                axios.get(`${import.meta.env.VITE_API_URL || ""}/api/finance/allocation`)
+                axios.get(`${import.meta.env.VITE_API_URL || ""}/api/finance/allocation`),
+                axios.get(`${import.meta.env.VITE_API_URL || ""}/api/finance/pending-payments`)
             ]);
             setStats(overviewRes.data);
             setTransactions(txRes.data);
             setAllocation(allocRes.data);
+            setPendingPayments(pendingRes.data);
             setLoading(false);
         } catch (err) {
             console.error("Failed to fetch finance data", err);
@@ -158,42 +161,54 @@ export default function Finance() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200 fill-mode-backwards">
-                <div className="bg-white p-8 md:p-10 rounded-[2.5rem] border border-ivory shadow-sm relative overflow-hidden group hover:shadow-xl hover:-translate-y-2 transition-all duration-700">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200 fill-mode-backwards">
+                <div className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-ivory shadow-sm relative overflow-hidden group hover:shadow-xl hover:-translate-y-2 transition-all duration-700">
                     <div className="absolute top-0 right-0 p-8 opacity-5 text-charcoal group-hover:scale-110 transition-transform duration-700">
                         <TrendingUp size={120} />
                     </div>
-                    <p className="text-[10px] text-warmgray uppercase tracking-[0.3em] font-bold mb-4">Annual Sales</p>
-                    <h3 className="text-3xl md:text-5xl font-serif">{formatCurrency(stats.annualSales)}</h3>
+                    <p className="text-[10px] text-warmgray uppercase tracking-[0.2em] font-bold mb-4">Annual Sales</p>
+                    <h3 className="text-2xl md:text-4xl font-serif text-charcoal">{formatCurrency(stats.annualSales)}</h3>
                     <div className="mt-8 flex items-center gap-2 text-[10px] text-green-600 font-bold uppercase tracking-widest">
                         <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
                         Live Revenue
                     </div>
                 </div>
 
-                <div className="bg-white p-8 md:p-10 rounded-[2.5rem] border border-ivory shadow-sm relative overflow-hidden group hover:shadow-xl hover:-translate-y-2 transition-all duration-700">
+                <div className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-ivory shadow-sm relative overflow-hidden group hover:shadow-xl hover:-translate-y-2 transition-all duration-700">
+                    <div className="absolute top-0 right-0 p-8 opacity-5 text-charcoal group-hover:scale-110 transition-transform duration-700">
+                        <TrendingUp size={120} />
+                    </div>
+                    <p className="text-[10px] text-warmgray uppercase tracking-[0.2em] font-bold mb-4">Pending Revenue</p>
+                    <h3 className="text-2xl md:text-4xl font-serif text-charcoal">{formatCurrency(stats.pendingRevenue || 0)}</h3>
+                    <div className="mt-8 flex items-center gap-2 text-[10px] text-blue-600 font-bold uppercase tracking-widest">
+                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                        Awaiting Payments
+                    </div>
+                </div>
+
+                <div className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-ivory shadow-sm relative overflow-hidden group hover:shadow-xl hover:-translate-y-2 transition-all duration-700">
                     <div className="absolute top-0 right-0 p-8 opacity-5 text-charcoal group-hover:scale-110 transition-transform duration-700">
                         <TrendingDown size={120} />
                     </div>
-                    <p className="text-[10px] text-warmgray uppercase tracking-[0.3em] font-bold mb-4">Total Expenses</p>
-                    <h3 className="text-3xl md:text-5xl font-serif">{formatCurrency(stats.expenses)}</h3>
+                    <p className="text-[10px] text-warmgray uppercase tracking-[0.2em] font-bold mb-4">Total Expenses</p>
+                    <h3 className="text-2xl md:text-4xl font-serif text-charcoal">{formatCurrency(stats.expenses)}</h3>
                     <div className="mt-8 flex items-center gap-2 text-[10px] text-amber-600 font-bold uppercase tracking-widest">
                         <div className="w-2 h-2 rounded-full bg-amber-500"></div>
                         Operational Costs
                     </div>
                 </div>
 
-                <div className="bg-charcoal p-8 md:p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden group hover:-translate-y-2 transition-transform duration-700">
+                <div className="bg-charcoal p-6 md:p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden group hover:-translate-y-2 transition-transform duration-700">
                     <div className="absolute inset-0 bg-linear-to-br from-white/5 to-transparent pointer-events-none"></div>
-                    <p className="text-[10px] text-white/50 uppercase tracking-[0.3em] font-bold mb-4">Studio Profit</p>
-                    <h3 className="text-3xl md:text-5xl font-serif text-ivory">{formatCurrency(stats.annualProfit)}</h3>
-                    <div className="mt-8 flex items-center gap-2 text-[10px] text-gold font-bold uppercase tracking-[0.25em] italic">
+                    <p className="text-[10px] text-white/50 uppercase tracking-[0.2em] font-bold mb-4">Studio Profit</p>
+                    <h3 className="text-2xl md:text-4xl font-serif text-ivory">{formatCurrency(stats.annualProfit)}</h3>
+                    <div className="mt-8 flex items-center gap-2 text-[10px] text-gold font-bold uppercase tracking-[0.2em] italic truncate">
                         "Precision Over Volume"
                     </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 animate-in fade-in slide-in-from-bottom-12 duration-[1500ms] delay-300 fill-mode-backwards">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 animate-in fade-in slide-in-from-bottom-12 duration-1500 delay-300 fill-mode-backwards">
                 <div className="bg-white rounded-[2.5rem] border border-ivory shadow-sm p-8 md:p-12 overflow-hidden hover:shadow-xl transition-shadow duration-700">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
                         <h4 className="font-serif text-2xl md:text-3xl">Recent Transactions</h4>
@@ -224,6 +239,11 @@ export default function Finance() {
                                 <div className="flex items-center gap-4">
                                     <div className="text-right">
                                         <div className="text-base font-bold text-charcoal">{tx.type === 'expense' ? '-' : '+'}{formatCurrency(tx.amount)}</div>
+                                        {tx.pendingAmount > 0 && (
+                                            <div className="text-[9px] font-bold uppercase tracking-widest mt-0.5 text-blue-600">
+                                                Awaiting: {formatCurrency(tx.pendingAmount)}
+                                            </div>
+                                        )}
                                         <div className={`text-[9px] font-bold uppercase tracking-widest mt-1 ${tx.status === 'Success' || tx.status === 'Paid' ? 'text-green-600' : 'text-amber-600'
                                             }`}>{tx.status}</div>
                                     </div>
@@ -278,6 +298,45 @@ export default function Finance() {
                         "Wealth is the ability to fully experience life."
                     </div>
                 </div>
+            </div>
+
+            <div className="bg-white rounded-[2.5rem] border border-ivory shadow-sm p-8 md:p-12 hover:shadow-xl transition-shadow duration-700 animate-in fade-in slide-in-from-bottom-12 delay-500 fill-mode-backwards mt-12">
+                <div className="flex justify-between items-center mb-10">
+                    <h4 className="font-serif text-2xl md:text-3xl">Pending Client Receivables</h4>
+                    <button className="text-[10px] font-bold uppercase tracking-widest text-[#1aa0a0] bg-[#1aa0a0]/10 px-4 py-2 rounded-full">Follow-ups</button>
+                </div>
+                {pendingPayments.length > 0 ? (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="border-b border-ivory text-[10px] uppercase tracking-widest text-warmgray">
+                                    <th className="py-4 font-bold">Client / Inquiry</th>
+                                    <th className="py-4 font-bold">Total Value</th>
+                                    <th className="py-4 font-bold">Deposited / Paid</th>
+                                    <th className="py-4 font-bold text-red-600">Pending Amount</th>
+                                    <th className="py-4 font-bold text-right hidden sm:table-cell">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {pendingPayments.map((p, idx) => (
+                                    <tr key={idx} className="border-b border-ivory/50 last:border-0 hover:bg-ivory/20 transition-colors">
+                                        <td className="py-4 font-bold text-sm text-charcoal">{p.name} <span className="text-[9px] text-warmgray ml-2">{p.type}</span></td>
+                                        <td className="py-4 text-sm font-medium">{formatCurrency(p.total)}</td>
+                                        <td className="py-4 text-sm font-medium text-green-700">{formatCurrency(p.paid)}</td>
+                                        <td className="py-4 text-sm font-bold text-amber-600">{formatCurrency(p.pending)}</td>
+                                        <td className="py-4 text-right hidden sm:table-cell">
+                                            <span className={`text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded ${p.status === 'Deposit Paid' ? 'bg-amber-50 text-amber-600' : 'bg-red-50 text-red-600'}`}>
+                                                {p.status}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                ) : (
+                    <p className="text-center text-warmgray text-sm italic py-10 animate-gentle-fade">All clients are fully paid up.</p>
+                )}
             </div>
 
             {showExpenseModal && (

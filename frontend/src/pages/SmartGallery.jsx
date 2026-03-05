@@ -4,7 +4,7 @@ import { Upload, Star, ChevronDown, Image as ImageIcon, Plus, CheckCircle2, Slid
 import toast from "react-hot-toast";
 
 
-const CATEGORIES = ["Wedding", "Engagement", "Pre-wedding", "Haldi", "Reception", "Other"];
+const CATEGORIES = ["Wedding", "Engagement", "Pre-wedding", "Haldi", "Reception", "Sangeeth", "Other"];
 
 export default function SmartGallery() {
   const [galleryItems, setGalleryItems] = useState([]);
@@ -25,11 +25,13 @@ export default function SmartGallery() {
   const [editingItemId, setEditingItemId] = useState(null);
   const [newItemTitle, setNewItemTitle] = useState("");
 
-  // Upload Form State (Restored)
-  const [selectedType, setSelectedType] = useState("Image"); // "Image", "Video", "Drive Link"
-  const [uploadFile, setUploadFile] = useState(null);
+  // Upload Form State
+  const [selectedType, setSelectedType] = useState("Image"); // "Image", "Video", "Drive Link", "Image Link"
+  const [uploadFiles, setUploadFiles] = useState([]);
   const [driveUrl, setDriveUrl] = useState("");
+  const [imageUrl, setImageUrl] = useState(""); // Support direct URL upload
   const [submitting, setSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState("");
 
   useEffect(() => {
     fetchGallery();
@@ -93,6 +95,7 @@ export default function SmartGallery() {
   const submitUpload = async (e) => {
     e.preventDefault();
     setSubmitting(true);
+    setUploadProgress("Preparing upload...");
     const formData = new FormData(e.target);
     const newClientFolder = formData.get('newClientFolder');
     const clientFolderSelect = formData.get('clientFolderSelect');
@@ -100,52 +103,139 @@ export default function SmartGallery() {
     const category = formData.get('category') || 'Wedding';
     const generatedTitle = `${clientFolder} - ${category} Moment`;
 
-    if (!uploadFile) {
-      setSubmitting(false);
-      return toast.error("Please explicitly select a media file or a cover photo.");
-    }
-
-    // type mappings
-    const typeMapping = { 'Image': 'image', 'Video': 'video', 'Drive Link': 'drive' };
+    const typeMapping = { 'Image': 'image', 'Video': 'video', 'Drive Link': 'drive', 'Image Link': 'image' };
     const type = typeMapping[selectedType];
 
-    let finalUrl = "";
     try {
-      const fileData = new FormData();
-      fileData.append("file", uploadFile);
-      const res = await axios.post(`${import.meta.env.VITE_API_URL || ""}/api/gallery/upload`, fileData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      finalUrl = res.data.url;
-    } catch (err) {
-      console.error("Upload error:", err);
-      toast.error("Failed to upload the file to our server");
-      setSubmitting(false);
-      return;
-    }
+      if (selectedType === 'Image' || selectedType === 'Video') {
+        if (!uploadFiles || uploadFiles.length === 0) {
+          setSubmitting(false);
+          setUploadProgress("");
+          return toast.error(`Please select at least one ${selectedType}.`);
+        }
 
-    const payload = {
-      title: generatedTitle,
-      albumName: generatedTitle,
-      clientFolder,
-      url: finalUrl,
-      category,
-      type,
-      link: selectedType === 'Drive Link' ? driveUrl : undefined
-    };
+        const filesArray = Array.from(uploadFiles);
+        const total = filesArray.length;
+        let uploadedCount = 0;
+        const newItems = [];
 
-    try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL || ""}/api/gallery`, payload);
-      setGalleryItems([res.data, ...galleryItems]);
+        // Parallel upload for maximum speed
+        setUploadProgress(`Uploading 0 of ${total} files...`);
+
+        await Promise.all(filesArray.map(async (file, i) => {
+          const fileData = new FormData();
+          fileData.append("file", file);
+
+          try {
+            const res = await axios.post(`${import.meta.env.VITE_API_URL || ""}/api/gallery/upload`, fileData);
+
+            const payload = {
+              title: total > 1 ? `${generatedTitle} ${i + 1}` : generatedTitle,
+              albumName: generatedTitle,
+              clientFolder,
+              url: res.data.url,
+              category,
+              type
+            };
+
+            const itemRes = await axios.post(`${import.meta.env.VITE_API_URL || ""}/api/gallery`, payload);
+            newItems.push(itemRes.data);
+            uploadedCount++;
+            setUploadProgress(`Uploaded ${uploadedCount} of ${total} files...`);
+          } catch (err) {
+            const backendError = err.response?.data?.error || err.message;
+            console.error(`Failed to upload file ${i + 1}`, backendError);
+            toast.error(`File ${i + 1} Error: ${backendError}`);
+          }
+        }));
+
+        if (newItems.length > 0) {
+          setGalleryItems(prev => [...newItems, ...prev]);
+          toast.success(`Successfully added ${newItems.length} items to the gallery!`);
+        } else {
+          toast.error("Failed to upload the items.");
+        }
+      } else if (selectedType === 'Drive Link') {
+        if (!uploadFiles || uploadFiles.length === 0 || !driveUrl) {
+          setSubmitting(false);
+          setUploadProgress("");
+          return toast.error("Please provide a Drive link and a cover photo.");
+        }
+        setUploadProgress("Uploading Drive Cover...");
+        const fileData = new FormData();
+        fileData.append("file", uploadFiles[0]);
+        // Handle potential rejection softly via a robust try block to not freeze UI
+        let finalUrl = "";
+        try {
+          const res = await axios.post(`${import.meta.env.VITE_API_URL || ""}/api/gallery/upload`, fileData);
+          finalUrl = res.data.url;
+        } catch (err) {
+          const backendError = err.response?.data?.error || err.message;
+          console.error("Drive cover upload error:", backendError);
+          setSubmitting(false);
+          setUploadProgress("");
+          return toast.error(`Upload Error: ${backendError}`);
+        }
+
+        const payload = {
+          title: generatedTitle,
+          albumName: generatedTitle,
+          clientFolder,
+          url: finalUrl,
+          category,
+          type,
+          link: driveUrl
+        };
+        const itemRes = await axios.post(`${import.meta.env.VITE_API_URL || ""}/api/gallery`, payload);
+        setGalleryItems(prev => [itemRes.data, ...prev]);
+        toast.success("Successfully added Drive folder!");
+
+      } else if (selectedType === 'Image Link') {
+        if (!imageUrl) {
+          setSubmitting(false);
+          setUploadProgress("");
+          return toast.error("Please provide a valid Cloudinary/Image URL.");
+        }
+        setUploadProgress("Saving image link...");
+        const payload = {
+          title: generatedTitle,
+          albumName: generatedTitle,
+          clientFolder,
+          url: imageUrl,
+          category,
+          type
+        };
+        const itemRes = await axios.post(`${import.meta.env.VITE_API_URL || ""}/api/gallery`, payload);
+        setGalleryItems(prev => [itemRes.data, ...prev]);
+        toast.success("Successfully added Image Link to gallery!");
+      }
+
       setShowUploadForm(false);
-      setUploadFile(null);
+      setUploadFiles([]);
       setDriveUrl("");
-      toast.success("Successfully added to the gallery!");
+      setImageUrl("");
     } catch (err) {
       console.error(err);
-      toast.error("Failed to save gallery item.");
+      toast.error("An error occurred during submission.");
     } finally {
       setSubmitting(false);
+      setUploadProgress("");
+    }
+  };
+
+  const handleSetCover = async (id, e) => {
+    e?.stopPropagation();
+    try {
+      const res = await axios.patch(`${import.meta.env.VITE_API_URL || ""}/api/gallery/${id}/cover`);
+      setGalleryItems(prev => prev.map(item => {
+        if (item._id === id) return { ...item, isCover: true };
+        if (item.clientFolder === res.data.item.clientFolder && item.category === res.data.item.category) return { ...item, isCover: false };
+        return item;
+      }));
+      toast.success("Set as Folder Cover Successfully!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to set cover");
     }
   };
 
@@ -196,6 +286,32 @@ export default function SmartGallery() {
     } catch (err) {
       console.error(err);
       toast.error("Failed to update title.");
+    }
+  };
+
+  const handleDeleteClient = async (clientName) => {
+    if (!window.confirm(`Are you sure you want to delete the folder "${clientName}" and ALL its media?`)) return;
+    try {
+      await axios.delete(`${import.meta.env.VITE_API_URL || ""}/api/gallery/folder/${encodeURIComponent(clientName)}`);
+      setGalleryItems(prev => prev.filter(i => (i.clientFolder || 'Default Client') !== clientName));
+      toast.success("Folder deleted successfully!");
+      setEditingClient(null);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete folder.");
+    }
+  };
+
+  const handleDeleteEvent = async (eventName) => {
+    if (!window.confirm(`Are you sure you want to delete the event "${eventName}" and ALL its media?`)) return;
+    try {
+      await axios.delete(`${import.meta.env.VITE_API_URL || ""}/api/gallery/folder/${encodeURIComponent(activeClientFolder)}/category/${encodeURIComponent(eventName)}`);
+      setGalleryItems(prev => prev.filter(i => !((i.clientFolder || 'Default Client') === activeClientFolder && i.category === eventName)));
+      toast.success("Event folder deleted!");
+      setEditingEvent(null);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete event folder.");
     }
   };
 
@@ -269,11 +385,11 @@ export default function SmartGallery() {
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-4">
                 <label className="text-[10px] uppercase font-bold tracking-widest text-warmgray ml-1">Asset Type</label>
-                <div className="flex gap-4 mb-4">
-                  {['Image', 'Video', 'Drive Link'].map((assetType) => (
-                    <label key={assetType} className={`flex-1 flex gap-2 items-center justify-center p-3 rounded-xl border text-xs font-bold uppercase tracking-widest cursor-pointer transition-colors ${selectedType === assetType ? 'bg-charcoal text-white border-charcoal' : 'bg-white text-warmgray border-[#e6e3df] hover:border-charcoal'}`}>
+                <div className="flex gap-2 mb-4 overflow-x-auto pb-2 scrollbar-hide">
+                  {['Image', 'Video', 'Drive Link', 'Image Link'].map((assetType) => (
+                    <label key={assetType} className={`flex-1 min-w-[100px] flex gap-2 items-center justify-center p-3 rounded-xl border text-[10px] sm:text-xs font-bold uppercase tracking-widest cursor-pointer transition-colors ${selectedType === assetType ? 'bg-charcoal text-white border-charcoal shadow-md scale-[1.02]' : 'bg-white text-warmgray border-[#e6e3df] hover:border-charcoal'}`}>
                       <input type="radio" name="mediaType" value={assetType} className="hidden" checked={selectedType === assetType} onChange={() => setSelectedType(assetType)} />
                       {assetType}
                     </label>
@@ -290,22 +406,39 @@ export default function SmartGallery() {
                   </div>
                   <div className="space-y-2 mt-4">
                     <label className="text-[10px] uppercase font-bold tracking-widest text-warmgray ml-1">Upload Cover Photo</label>
-                    <input type="file" accept="image/*" onChange={(e) => setUploadFile(e.target.files[0])} required className="w-full bg-white border border-[#e6e3df] rounded-xl px-4 py-3 text-sm focus:outline-mutedbrown file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-charcoal file:text-white" />
+                    <input type="file" accept="image/*" onChange={(e) => setUploadFiles(e.target.files)} required className="w-full bg-white border border-[#e6e3df] rounded-xl px-4 py-3 text-sm focus:outline-mutedbrown file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-charcoal file:text-white" />
                   </div>
                 </>
-              ) : (
+              ) : selectedType === 'Image Link' ? (
                 <div className="space-y-2">
-                  <label className="text-[10px] uppercase font-bold tracking-widest text-warmgray ml-1">Select {selectedType}</label>
-                  <input type="file" accept={selectedType === 'Video' ? "video/*" : "image/*"} onChange={(e) => setUploadFile(e.target.files[0])} required className="w-full bg-white border border-[#e6e3df] rounded-xl px-4 py-3 text-sm focus:outline-mutedbrown file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-charcoal file:text-white" />
+                  <label className="text-[10px] uppercase font-bold tracking-widest text-warmgray ml-1">Direct Cloudinary / Web URL</label>
+                  <input type="url" required value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://res.cloudinary.com/..." className="w-full bg-ivory/40 border border-[#e6e3df] rounded-xl px-4 py-3 text-sm focus:outline-mutedbrown" />
+                </div>
+              ) : (
+                <div className="space-y-2 animate-in fade-in duration-500">
+                  <label className="text-[10px] uppercase font-bold tracking-widest text-warmgray ml-1">Select {selectedType}s (Multiple Allowed)</label>
+                  <label className="block w-full border-2 border-dashed border-[#e6e3df] rounded-2xl p-8 hover:bg-gray-50/50 hover:border-charcoal cursor-pointer transition-all text-center">
+                    <Upload size={32} className="mx-auto mb-4 text-warmgray opacity-50" />
+                    <span className="text-charcoal font-medium text-sm block">{uploadFiles && uploadFiles.length > 0 ? `${uploadFiles.length} file(s) selected` : 'Click to Browse Files'}</span>
+                    <span className="text-[10px] text-warmgray tracking-widest uppercase mt-2 block">Upload high-res moments instantly</span>
+                    <input type="file" accept={selectedType === 'Video' ? "video/*" : "image/*"} multiple onChange={(e) => setUploadFiles(e.target.files)} required className="hidden" />
+                  </label>
                 </div>
               )}
 
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full bg-charcoal text-white py-4 rounded-xl text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-mutedbrown transition-all shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                className="relative w-full bg-charcoal text-white py-4 rounded-xl text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-mutedbrown transition-all shadow-xl disabled:opacity-80 disabled:cursor-not-allowed overflow-hidden"
               >
-                {submitting ? "Processing Luxury Asset..." : "Add to Folder"}
+                {submitting ? (
+                  <span className="flex items-center justify-center gap-3 animate-pulse">
+                    <span className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin"></span>
+                    {uploadProgress || "Processing Luxury Asset..."}
+                  </span>
+                ) : (
+                  "Add to Folder"
+                )}
               </button>
             </form>
           </div>
@@ -318,52 +451,66 @@ export default function SmartGallery() {
       {!activeClientFolder && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {clientFolders.map((client, idx) => {
-            const itemsCount = galleryItems.filter(i => (i.clientFolder || 'Default Client') === client).length;
+            const itemsForClient = galleryItems.filter(i => (i.clientFolder || 'Default Client') === client);
+            const itemsCount = itemsForClient.length;
+            const coverItem = itemsForClient.find(i => i.isCover) || itemsForClient.find(i => i.type !== 'video' && i.url) || itemsForClient[0];
+            const coverUrl = coverItem && coverItem.type !== 'video' ? coverItem.url : null;
             const isEditing = editingClient === client;
 
             return (
               <div
                 key={client}
                 onClick={() => !isEditing && setActiveClientFolder(client)}
-                className="group bg-white p-6 rounded-3xl border border-ivory/50 shadow-sm hover:shadow-xl transition-all duration-700 cursor-pointer hover:-translate-y-2 flex flex-col gap-4 relative animate-in fade-in slide-in-from-bottom-8"
+                className="group bg-white p-3 pb-6 rounded-sm border border-gray-200 shadow-md hover:shadow-2xl transition-all duration-700 cursor-pointer hover:-translate-y-2 flex flex-col relative animate-in fade-in slide-in-from-bottom-8"
                 style={{ animationDelay: `${idx * 100}ms`, animationFillMode: 'backwards' }}
               >
-                <div className="flex justify-between items-start">
-                  <div className="w-16 h-16 bg-ivory rounded-2xl flex items-center justify-center text-charcoal group-hover:bg-charcoal group-hover:text-white transition-all duration-500 transform group-hover:scale-110">
-                    <Folder size={28} />
-                  </div>
-                  {isEditing ? (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleRenameClient(client); }}
-                      className="p-2 bg-charcoal text-white rounded-full hover:bg-mutedbrown transition-colors shadow-lg"
-                    >
-                      <Check size={16} />
-                    </button>
+                <div className="w-full aspect-4/5 bg-gray-50 rounded-sm mb-4 relative overflow-hidden flex items-center justify-center">
+                  {coverUrl ? (
+                    <img src={coverUrl} alt={`${client} Cover`} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
                   ) : (
+                    <Folder size={40} className="text-gray-300" strokeWidth={1} />
+                  )}
+
+                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-all bg-white/90 backdrop-blur-sm rounded-full shadow-sm p-1">
+                    {isEditing ? (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleRenameClient(client); }}
+                        className="p-1.5 bg-charcoal text-white rounded-full hover:bg-mutedbrown transition-colors"
+                      >
+                        <Check size={14} />
+                      </button>
+                    ) : (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setEditingClient(client); setNewClientName(client); }}
+                        className="p-1.5 text-warmgray hover:text-charcoal hover:bg-gray-100 rounded-full transition-all"
+                      >
+                        <Edit3 size={14} />
+                      </button>
+                    )}
                     <button
-                      onClick={(e) => { e.stopPropagation(); setEditingClient(client); setNewClientName(client); }}
-                      className="p-2 text-warmgray hover:text-charcoal hover:bg-ivory rounded-full transition-all opacity-0 group-hover:opacity-100"
+                      onClick={(e) => { e.stopPropagation(); handleDeleteClient(client); }}
+                      className="p-1.5 text-warmgray hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
                     >
-                      <Edit3 size={16} />
+                      <Trash2 size={14} />
                     </button>
-                  )
-                  }
+                  </div>
                 </div>
-                <div>
+
+                <div className="text-center px-1">
                   {isEditing ? (
                     <input
                       autoFocus
                       type="text"
-                      className="w-full bg-ivory/50 border border-mutedbrown rounded-lg px-2 py-1 text-sm font-serif mb-1 outline-none"
+                      className="w-full bg-gray-50 border border-gray-300 rounded px-2 py-1 text-sm font-serif mb-1 outline-none text-center"
                       value={newClientName}
                       onChange={(e) => setNewClientName(e.target.value)}
                       onClick={(e) => e.stopPropagation()}
                       onKeyDown={(e) => e.key === 'Enter' && handleRenameClient(client)}
                     />
                   ) : (
-                    <h3 className="font-serif text-xl mb-1">{client}</h3>
+                    <h3 className="font-serif xl:text-xl text-lg mb-1 truncate text-charcoal">{client}</h3>
                   )}
-                  <p className="text-xs text-warmgray font-medium uppercase tracking-widest">{itemsCount} Moments</p>
+                  <p className="text-[10px] text-warmgray font-medium uppercase tracking-[0.2em]">{itemsCount} Moments</p>
                 </div>
               </div>
             );
@@ -375,51 +522,66 @@ export default function SmartGallery() {
       {activeClientFolder && !activeEventFolder && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {eventFolders.map((event, idx) => {
-            const itemsCount = itemsForActiveClient.filter(i => i.category === event).length;
+            const eventItems = itemsForActiveClient.filter(i => i.category === event);
+            const itemsCount = eventItems.length;
+            const coverItem = eventItems.find(i => i.isCover) || eventItems.find(i => i.type !== 'video' && i.url) || eventItems[0];
+            const coverUrl = coverItem && coverItem.type !== 'video' ? coverItem.url : null;
             const isEditing = editingEvent === event;
 
             return (
               <div
                 key={event}
                 onClick={() => !isEditing && setActiveEventFolder(event)}
-                className="group bg-white p-6 rounded-3xl border border-ivory/50 shadow-sm hover:shadow-xl transition-all duration-700 cursor-pointer hover:-translate-y-2 flex flex-col gap-4 relative animate-in fade-in slide-in-from-bottom-8"
+                className="group bg-white p-3 pb-6 rounded-sm border border-gray-200 shadow-md hover:shadow-2xl transition-all duration-700 cursor-pointer hover:-translate-y-2 flex flex-col relative animate-in fade-in slide-in-from-bottom-8"
                 style={{ animationDelay: `${idx * 100}ms`, animationFillMode: 'backwards' }}
               >
-                <div className="flex justify-between items-start">
-                  <div className="w-16 h-16 bg-ivory/50 rounded-2xl flex items-center justify-center text-charcoal group-hover:bg-charcoal group-hover:text-white transition-all duration-500 transform group-hover:scale-110">
-                    <FolderPlus size={28} />
-                  </div>
-                  {isEditing ? (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleRenameEvent(event); }}
-                      className="p-2 bg-charcoal text-white rounded-full hover:bg-mutedbrown transition-colors shadow-lg"
-                    >
-                      <Check size={16} />
-                    </button>
+                <div className="w-full aspect-4/5 bg-gray-50 rounded-sm mb-4 relative overflow-hidden flex items-center justify-center">
+                  {coverUrl ? (
+                    <img src={coverUrl} alt={`${event} Cover`} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
                   ) : (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setEditingEvent(event); setNewEventName(event); }}
-                      className="p-2 text-warmgray hover:text-charcoal hover:bg-ivory rounded-full transition-all opacity-0 group-hover:opacity-100"
-                    >
-                      <Edit3 size={16} />
-                    </button>
+                    <FolderPlus size={40} className="text-gray-300" strokeWidth={1} />
                   )}
+
+                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-all bg-white/90 backdrop-blur-sm rounded-full shadow-sm p-1">
+                    {isEditing ? (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleRenameEvent(event); }}
+                        className="p-1.5 bg-charcoal text-white rounded-full hover:bg-mutedbrown transition-colors"
+                      >
+                        <Check size={14} />
+                      </button>
+                    ) : (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setEditingEvent(event); setNewEventName(event); }}
+                        className="p-1.5 text-warmgray hover:text-charcoal hover:bg-gray-100 rounded-full transition-all"
+                      >
+                        <Edit3 size={14} />
+                      </button>
+                    )}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleDeleteEvent(event); }}
+                      className="p-1.5 text-warmgray hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </div>
-                <div>
+
+                <div className="text-center px-1">
                   {isEditing ? (
                     <input
                       autoFocus
                       type="text"
-                      className="w-full bg-white border border-mutedbrown rounded-lg px-2 py-1 text-sm font-serif mb-1 outline-none"
+                      className="w-full bg-gray-50 border border-gray-300 rounded px-2 py-1 text-sm font-serif mb-1 outline-none text-center"
                       value={newEventName}
                       onChange={(e) => setNewEventName(e.target.value)}
                       onClick={(e) => e.stopPropagation()}
                       onKeyDown={(e) => e.key === 'Enter' && handleRenameEvent(event)}
                     />
                   ) : (
-                    <h3 className="font-serif text-xl mb-1">{event}</h3>
+                    <h3 className="font-serif xl:text-xl text-lg mb-1 truncate text-charcoal">{event}</h3>
                   )}
-                  <p className="text-xs text-warmgray font-medium uppercase tracking-widest">{itemsCount} Assets</p>
+                  <p className="text-[10px] text-warmgray font-medium uppercase tracking-[0.2em]">{itemsCount} Moments</p>
                 </div>
               </div>
             );
@@ -490,6 +652,9 @@ export default function SmartGallery() {
                       <div className="flex gap-2">
                         <button onClick={(e) => toggleFavorite(id, e)} className={`w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md border transition-colors ${isFav ? 'bg-white/20 border-gold/50 text-gold' : 'bg-white/10 border-white/20 text-white hover:bg-white/20'}`}>
                           <Heart size={15} fill={isFav ? "currentColor" : "none"} />
+                        </button>
+                        <button onClick={(e) => handleSetCover(id, e)} title="Set as Thumbnail Cover" className={`w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md border transition-colors ${item.isCover ? 'bg-gold border-gold text-white shadow-lg shadow-gold/30' : 'bg-white/10 border-white/20 text-white hover:bg-gold hover:border-gold'}`}>
+                          <Star size={15} fill={item.isCover ? "currentColor" : "none"} />
                         </button>
                         {item.type === 'drive' ? (
                           <button onClick={(e) => { e.stopPropagation(); window.open(item.link || item.url, '_blank') }} className="px-3 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white backdrop-blur-md hover:bg-[#1aa0a0] hover:border-[#1aa0a0] transition-all text-[10px] font-bold tracking-widest">

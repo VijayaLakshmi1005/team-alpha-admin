@@ -130,7 +130,7 @@ export default function LeadDetails({ lead: initialLead, onClose, onGenerateInvo
     <div className="fixed inset-0 bg-charcoal/20 backdrop-blur-md z-50 flex justify-end">
       <div className="w-full max-w-xl bg-ivory h-screen overflow-y-auto shadow-2xl animate-in slide-in-from-right duration-500 flex flex-col">
         {/* Header */}
-        <div className="sticky top-0 bg-ivory/80 backdrop-blur-md px-4 sm:px-6 md:px-10 py-6 md:py-8 border-b border-[#e6e3df] flex justify-between items-center z-10 w-full">
+        <div className="sticky top-0 bg-ivory/90 backdrop-blur-xl px-4 sm:px-6 md:px-10 py-6 md:py-8 border-b border-[#e6e3df] flex justify-between items-center z-40 w-full">
           <div className="flex items-center gap-5">
             <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center border border-[#e6e3df] shadow-sm font-serif text-2xl text-mutedbrown uppercase">
               {(lead.name || "?")[0]}

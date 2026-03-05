@@ -24,8 +24,8 @@ export default function Sidebar({ onClose }) {
       <div className="flex justify-between items-center mb-12 px-2">
         <div className="flex flex-col gap-4">
           {/* Logo added here */}
-          <div className="w-16 h-16 md:w-20 md:h-20 bg-black rounded-2xl flex items-center justify-center shadow-md">
-            <img src="/team-alpha-logo.png" alt="Team Alpha Logo" className="w-full h-full object-cover rounded-2xl" />
+          <div className="w-16 h-16 md:w-20 md:h-20 bg-white rounded-2xl flex items-center justify-center shadow-md">
+            <img src="/team-alpha-logo.png" alt="Team Alpha Logo" className="w-full h-full object-contain p-1 rounded-2xl" />
           </div>
           <div>
             <h1 className="font-serif text-2xl tracking-tighter text-charcoal">Team Alpha Photography</h1>
